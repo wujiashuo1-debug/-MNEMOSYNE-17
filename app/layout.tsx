@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 const title = "MNEMOSYNE-17 / 没有第二天";
-const description = "一款非线性网页心理恐怖调查游戏。任选角色与取证顺序，穿过七段彼此侵蚀的日常录像，并证明自己看到的旧档案是否在点击之前存在。";
+const description = "临海认知续存研究所 B2 事故封存资料数字化入口。馆藏编号 M17-0417，访问与修改操作将写入当前人员索引。";
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mnemosyne-17-echo.hongshaoapple.chatgpt.site";
 const siteOrigin = new URL(siteUrl).origin;

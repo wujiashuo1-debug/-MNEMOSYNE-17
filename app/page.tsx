@@ -6,7 +6,7 @@ type Role = "lin" | "shen" | "fang";
 type AppId = "intranet" | "corridor" | "search" | "access" | "audio" | "compare" | "source" | "audit" | "case";
 type WebPage = "home" | "people" | "news" | "guestbook";
 type Finale = "publish" | "erase" | "ask";
-type PrologueStage = "package" | "brief" | "identity";
+type PrologueStage = "package" | "identity";
 
 const roles: Record<Role, { name: string; title: string; code: string; index: number; task: string; memory: string }> = {
   lin: {
@@ -133,63 +133,63 @@ const corridorDays = [
     image: "/corridor-day1.webp",
     title: "第一天 / 登记基线",
     log: "04:17:00　东廊无人。巡检员报告一切正常。",
-    question: "后续每一天都没有改变的基线是什么？",
-    answer: "clock",
-    options: [["door", "四扇门都关闭"], ["cart", "档案车停在右侧"], ["clock", "两只钟都停在 04:17"], ["light", "三支灯管全部点亮"]],
+    instruction: "在画面上标出不会随日期改变的计时装置，并写下你看到的时间。",
+    hotspot: { x: 10, y: 20, radius: 14 },
+    keywords: ["04:17", "4:17", "钟", "时间"],
   },
   {
     day: 2,
     image: "/corridor-day1.webp",
     title: "第二天 / 声音先于物体",
     log: "04:16:58　录音出现推车轮声；画面中的档案车连续 62 秒没有移动。",
-    question: "哪一件东西在声音里移动，却没有在画面中移动？",
-    answer: "cart",
-    options: [["clock", "墙钟"], ["cart", "档案车"], ["door", "106 号门"], ["mirror", "凸面镜"]],
+    instruction: "标出录音声源对应的物体，并在记录中说明声画矛盾。",
+    hotspot: { x: 70, y: 42, radius: 16 },
+    keywords: ["车", "推车", "档案车", "没动", "未移动"],
   },
   {
     day: 3,
     image: "/corridor-day4.webp",
     title: "第三天 / 多出的一人",
     log: "04:17:00　人脸检测：1。走廊检测：0。",
-    question: "唯一能解释检测矛盾的区域在哪里？",
-    answer: "mirror",
-    options: [["floor", "地面反光"], ["mirror", "尽头凸面镜"], ["window", "102 门窗"], ["cart", "档案车"]],
+    instruction: "标出可能被人脸检测器读取、却不属于走廊主体的区域。",
+    hotspot: { x: 60, y: 15, radius: 12 },
+    keywords: ["镜", "倒影", "反射", "人脸"],
   },
   {
     day: 4,
     image: "/corridor-day4.webp",
     title: "第四天 / 106 号门",
     log: "04:17:00　建筑图纸仍将 106 标记为“实心墙”。",
-    question: "哪一处变化与建筑图纸直接冲突？",
-    answer: "106",
-    options: [["102", "102 的观察窗"], ["106", "106 后出现房间"], ["clock", "墙钟缺少秒针"], ["cart", "档案车靠近"]],
+    instruction: "在图纸不承认的位置落下标记，并写明它为何不应存在。",
+    hotspot: { x: 45, y: 26, radius: 14 },
+    keywords: ["106", "门", "实心墙", "房间"],
   },
   {
     day: 5,
     image: "/corridor-day4.webp",
     title: "第五天 / 观看顺序错误",
     log: "04:17:00　系统备注：先检测到“被观看”，随后才渲染镜中人物。",
-    question: "这条备注说明异变发生在什么时候？",
-    answer: "render",
-    options: [["record", "1999 年录像时"], ["archive", "2001 年归档时"], ["render", "玩家观看页面时"], ["power", "B2 断电后"]],
+    instruction: "标出被延迟渲染的区域，并记录异常发生在采集、归档还是查看阶段。",
+    hotspot: { x: 60, y: 15, radius: 13 },
+    keywords: ["查看", "观看", "渲染", "现在", "播放"],
   },
   {
     day: 6,
     image: "/corridor-day7.webp",
     title: "第六天 / 每扇门后",
     log: "04:17:00　门后声纹全部回答：『今天你选了谁？』",
-    question: "门窗中的脸与哪份系统信息相矛盾？",
-    answer: "empty",
-    options: [["empty", "门禁记录显示所有房间为空"], ["clock", "墙钟没有数字"], ["cart", "档案数量过多"], ["lamp", "灯管只剩一支"]],
+    instruction: "标出任意一扇出现人脸的门窗，并写下它与门禁记录的冲突。",
+    hotspot: { x: 84, y: 34, radius: 18 },
+    keywords: ["脸", "人", "空", "无人", "门禁"],
   },
   {
     day: 7,
     image: "/corridor-day7.webp",
     title: "第七天 / 路线开始回看",
     log: "04:17:00　106 门后出现同一条东廊。镜头来源字段变更为：REMOTE/017。",
-    question: "第七天真正无法由摄像机拍到的是什么？",
-    answer: "recursive",
-    options: [["figure", "尽头站着的人"], ["faces", "门窗后的脸"], ["recursive", "106 内部递归出现同一走廊"], ["prints", "儿童高度的手印"]],
+    instruction: "标出空间发生递归的位置，并说明为什么这不是摄像机能够拍到的结构。",
+    hotspot: { x: 45, y: 26, radius: 15 },
+    keywords: ["递归", "走廊", "106", "同一", "循环"],
   },
 ] as const;
 
@@ -291,19 +291,21 @@ export default function Home() {
   const [revision, setRevision] = useState<1998 | 2001 | 2004>(2001);
   const [address, setAddress] = useState("http://m17.local/home.htm?rev=2001");
   const [corridorDay, setCorridorDay] = useState(1);
-  const [corridorChoice, setCorridorChoice] = useState("");
+  const [corridorPin, setCorridorPin] = useState<{ x: number; y: number } | null>(null);
+  const [corridorNote, setCorridorNote] = useState("");
   const [corridorMarks, setCorridorMarks] = useState<number[]>([]);
   const [found, setFound] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchRecord[]>([]);
+  const [selectedRecord, setSelectedRecord] = useState<SearchRecord | null>(null);
   const [searches, setSearches] = useState<string[]>([]);
   const [clockCorrected, setClockCorrected] = useState(false);
+  const [selectedAccessRow, setSelectedAccessRow] = useState<number | null>(null);
   const [audioTime, setAudioTime] = useState(16);
   const [room, setRoom] = useState<RoomId>("observation");
   const [listenedRooms, setListenedRooms] = useState<RoomId[]>([]);
-  const [audioAnswer, setAudioAnswer] = useState("");
   const [diff, setDiff] = useState(42);
-  const [photoAnswer, setPhotoAnswer] = useState("");
+  const [photoMark, setPhotoMark] = useState<{ x: number; y: number } | null>(null);
   const [maskOpacity, setMaskOpacity] = useState(100);
   const [maskFont, setMaskFont] = useState(0);
   const [notes, setNotes] = useState("");
@@ -333,7 +335,8 @@ export default function Home() {
   const [sessionDate, setSessionDate] = useState("----/--/--");
   const [hydrated, setHydrated] = useState(false);
   const [prologueStage, setPrologueStage] = useState<PrologueStage>("package");
-  const [prologueOpened, setPrologueOpened] = useState<string[]>([]);
+  const [filmStarted, setFilmStarted] = useState(false);
+  const [filmComplete, setFilmComplete] = useState(false);
   const [pendingRole, setPendingRole] = useState<Role | null>(null);
   const [roleFragments, setRoleFragments] = useState<string[]>([]);
   const [guideMode, setGuideMode] = useState(true);
@@ -341,6 +344,7 @@ export default function Home() {
   const [hintForLead, setHintForLead] = useState("");
   const [showDeskIntro, setShowDeskIntro] = useState(false);
   const audioCtx = useRef<AudioContext | null>(null);
+  const orientationVideo = useRef<HTMLVideoElement | null>(null);
   const hauntSeen = useRef(0);
   const hiddenAt = useRef(0);
 
@@ -484,18 +488,28 @@ export default function Home() {
     const key = Object.keys(searchIndex).find((term) => clean.includes(term));
     if (!key) {
       setResults([]);
+      setSelectedRecord(null);
       setToast(`0 条记录包含“${clean || "　"}”。数据库不支持近义词。`);
       return;
     }
     setResults(searchIndex[key]);
+    setSelectedRecord(null);
     setSearches((current) => current.includes(key) ? current : [...current, key]);
     setToast(`${searchIndex[key].length} 条记录包含“${key}”`);
   };
 
   const openRecord = (record: SearchRecord) => {
+    setSelectedRecord(record);
+    beep(118, 0.08);
+  };
+
+  const archiveRecord = (record: SearchRecord) => {
     if (record.evidence) addEvidence(record.evidence);
     if (record.id === "CCTV-12") setViewer("cctv");
     if (record.id === "C-017") setViewer("consent");
+    if (!record.evidence && record.id !== "CCTV-12" && record.id !== "C-017") {
+      setToast(`${record.id} 已加入阅读记录；未发现可独立验证的附件。`);
+    }
   };
 
   const correctClock = () => {
@@ -531,18 +545,18 @@ export default function Home() {
   };
 
   const submitAudio = () => {
-    if (audioAnswer === "duplicate" && listenedRooms.includes("observation") && listenedRooms.includes("server")) {
+    if (audioTime >= 14 && audioTime <= 19 && listenedRooms.includes("observation") && listenedRooms.includes("server")) {
       addEvidence("voice", "声场矛盾确认：同一女声在同一秒来自两处。");
     } else {
-      setToast("推断未被证据支持。拖到 00:16，并分别监听不同房间。");
+      setToast("重叠报告无法生成：同一时间窗至少需要两个已监听的房间。");
     }
   };
 
   const submitPhoto = () => {
-    if (photoAnswer === "shen") {
+    if (photoMark && photoMark.x >= 40 && photoMark.x <= 63 && photoMark.y >= 24 && photoMark.y <= 84 && diff >= 28 && diff <= 72) {
       addEvidence("photo", "差分确认：沈雁在公开版本中被整个人擦除。");
     } else {
-      setToast("差分区域不匹配。注意人物之间的折痕没有移动。");
+      setToast("差分标记未覆盖连续折痕的断点。拖动分界线后，在照片上标出被删除的区域。");
     }
   };
 
@@ -554,9 +568,15 @@ export default function Home() {
 
   const submitCorridor = () => {
     const entry = corridorDays[corridorDay - 1];
-    if (corridorChoice !== entry.answer) {
+    if (!corridorPin) {
+      setToast("尚未在画面上落下异常标记。");
+      return;
+    }
+    const distance = Math.hypot(corridorPin.x - entry.hotspot.x, corridorPin.y - entry.hotspot.y);
+    const noteMatched = entry.keywords.some((keyword) => corridorNote.toLowerCase().includes(keyword.toLowerCase()));
+    if (distance > entry.hotspot.radius || !noteMatched) {
       beep(61, 0.42, -0.65);
-      setToast("巡检结论与画面/日志不能同时成立。再看一次固定物的位置。");
+      setToast("标注与日志索引没有建立关联：检查落点，并在记录中写出具体物体或矛盾。");
       return;
     }
     const nextMarks = corridorMarks.includes(corridorDay) ? corridorMarks : [...corridorMarks, corridorDay];
@@ -581,7 +601,8 @@ export default function Home() {
     }
     const unverified = corridorDays.find((item) => !nextMarks.includes(item.day));
     if (unverified) setCorridorDay(unverified.day);
-    setCorridorChoice("");
+    setCorridorPin(null);
+    setCorridorNote("");
     setToast("该片段已登记。其余录像可按任意顺序核验。不同顺序会让你先相信不同的解释。");
   };
 
@@ -627,7 +648,10 @@ export default function Home() {
     const surfaceLinks =
       pairMatches(links.premeditated, ["shutdown", "clock"]) &&
       pairMatches(links.continuation, ["voice", "pager"]);
-    if (deduction.q1 === "duplicate" && deduction.q2 === "model" && deduction.q3 === "pager" && surfaceLinks && found.includes("loop")) {
+    const q1 = /模型|生成|合成/.test(deduction.q1);
+    const q2 = /调和/.test(deduction.q2) && /模型|记忆/.test(deduction.q2);
+    const q3 = /04[:：]?21|BP|寻呼|上传/i.test(deduction.q3);
+    if (q1 && q2 && q3 && surfaceLinks && found.includes("loop")) {
       setCaseSolved(true);
       setToast("表层推断链闭合。终止协议等待签署。");
     } else {
@@ -649,7 +673,7 @@ export default function Home() {
     const hiddenLinks =
       pairMatches(links.identities, ["cohort", "samechild"]) &&
       pairMatches(links.visitor, ["checksum", "observer"]);
-    if (!hiddenLinks || !found.includes("loop") || finalMotive !== "reaction") {
+    if (!hiddenLinks || !found.includes("loop") || !/道德|选择|反应|抉择/.test(finalMotive)) {
       setToast("反证不足。把『三种身份』和『当前访问者』分别连接到两份独立记录。");
       return;
     }
@@ -672,7 +696,8 @@ export default function Home() {
     setFinale(null);
     setSecondLoop(1);
     setCorridorDay(1);
-    setCorridorChoice("");
+    setCorridorPin(null);
+    setCorridorNote("");
     setCorridorMarks([]);
     setAuditSorted(false);
     setVoiceAligned(false);
@@ -682,7 +707,8 @@ export default function Home() {
     setLinks({ premeditated: ["", ""], continuation: ["", ""], identities: ["", ""], visitor: ["", ""] });
     setActiveApp("intranet");
     setPrologueStage("package");
-    setPrologueOpened([]);
+    setFilmStarted(false);
+    setFilmComplete(false);
     setPendingRole(null);
     setRoleFragments([]);
     setGuideMode(true);
@@ -857,96 +883,69 @@ export default function Home() {
 
   if (!role && !scarred && prologueStage === "package") {
     return (
-      <main className="prologue-screen package-stage">
+      <main className="prologue-screen film-stage">
         <div className="crt-lines" aria-hidden="true" />
         <div className="prologue-noise" aria-hidden="true" />
         <header className="prologue-systemline">
-          <span>REMOVABLE MEDIA / UNREGISTERED</span>
-          <time>{sessionDate}　04:17:00</time>
+          <span>临海市卫生系统 / 事故资料数字化终端</span>
+          <time>卷宗 M17-B2　{sessionDate}</time>
         </header>
-        <section className="package-hero">
-          <div className="package-visual">
-            <div className="parcel-shadow" />
-            <img src={asset("/evidence-table.webp")} alt="拆除现场回收的研究所物证与匿名磁盘" />
-            <div className="parcel-label">
-              <b>致：下一位愿意看完的人</b>
-              <span>来源：临海认知续存研究所 / 拆除废料</span>
-              <i>封存编号不存在</i>
-            </div>
+        <section className="film-shell">
+          <div className="film-heading">
+            <span>内部培训录像 / 复制件 04</span>
+            <h1>临海认知续存研究所<br />B2 事故资料接收说明</h1>
+            <p>磁带来源：市卫生系统异地备份。画面于 2001 年封存，音轨于本次读取时恢复。</p>
           </div>
-          <article className="package-copy">
-            <span className="case-kicker">ANONYMOUS DIGITAL RELIC / 017</span>
-            <h1>十九年前结束的事故，<br /><em>今天开始给你回信。</em></h1>
-            <p>凌晨 04:17，你收到一份没有寄件人的数字遗物。它来自一座已经拆除的研究所，内容涉及一次没有死者名单、没有转院记录、却提前写好闭站公告的事故。</p>
-            <dl>
-              <div><dt>载体</dt><dd>受损磁盘镜像 M17_0417</dd></div>
-              <div><dt>最后修改</dt><dd>{sessionDate} 04:17 / 就在你打开之后</dd></div>
-              <div><dt>附言</dt><dd>“请不要从死者开始调查。”</dd></div>
-            </dl>
-            <button className="prologue-primary" onClick={() => { beep(84, 0.7); setPrologueStage("brief"); }}>
-              校验并挂载数字遗物 <span>→</span>
-            </button>
-            <small>虚构作品。建议佩戴耳机；所有进度仅保存在当前浏览器。<a className="inline-manual-link" href={guideHref}>查看全流程攻略</a></small>
-          </article>
-        </section>
-      </main>
-    );
-  }
-
-  if (!role && !scarred && prologueStage === "brief") {
-    return (
-      <main className="prologue-screen brief-stage">
-        <div className="crt-lines" aria-hidden="true" />
-        <header className="prologue-systemline">
-          <button onClick={() => setPrologueStage("package")}>← 卸载</button>
-          <span>CASE ORIENTATION / READ {prologueOpened.length}/3</span>
-          <a className="system-manual-link" href={guideHref}>全流程攻略</a>
-        </header>
-        <section className="brief-heading">
-          <span>共同背景 / 每个身份都会看到不同版本</span>
-          <h1>先读完三份互相不承认的记录。</h1>
-          <p>点击档案拆封。你不必记住所有细节，只需要留意：日期、谁声称自己在哪里，以及记录是在事件前还是事件后出现的。</p>
-        </section>
-        <section className="prologue-records">
-          {prologueRecords.map((record, index) => {
-            const opened = prologueOpened.includes(record.id);
-            return (
+          <div className={`archive-film ${filmStarted ? "playing" : ""}`}>
+            <video
+              ref={orientationVideo}
+              src={asset("/orientation-film.mp4")}
+              poster={asset("/orientation-institute-1998.png")}
+              playsInline
+              preload="metadata"
+              onPlay={() => setFilmStarted(true)}
+              onEnded={() => setFilmComplete(true)}
+              onTimeUpdate={(event) => {
+                if (event.currentTarget.duration - event.currentTarget.currentTime < 1) setFilmComplete(true);
+              }}
+            >
+              <track kind="captions" src={asset("/orientation-film.vtt")} srcLang="zh" label="中文" default />
+            </video>
+            <div className="film-rec"><span>PLAY</span><time>2001-07-18 / COPY 04</time></div>
+            {!filmStarted && (
               <button
-                key={record.id}
-                className={opened ? "opened" : ""}
+                className="film-play"
                 onClick={() => {
-                  beep(140 + index * 70, 0.12, index - 1);
-                  setPrologueOpened((current) => current.includes(record.id) ? current : [...current, record.id]);
+                  orientationVideo.current?.play();
+                  beep(76, 0.35);
                 }}
               >
-                <span>{record.stamp}</span>
-                <h2>{record.title}</h2>
-                {opened ? <><p>{record.body}</p><i>{record.annotation}</i></> : <b>点击拆封 / RECORD {String(index + 1).padStart(2, "0")}</b>}
+                <b>载入事故说明录像</b>
+                <span>建议开启声音　/　时长 01:06</span>
               </button>
-            );
-          })}
-        </section>
-        <section className="orientation-mode">
-          <div>
-            <span>ASSISTANCE PROTOCOL</span>
-            <h2>你希望系统怎样协助调查？</h2>
-            <p>难度只影响目标提示，不删减剧情、谜题或结局。游戏内可随时切换。</p>
+            )}
+            <div className="film-caption">
+              <span>资料完整性 73%</span>
+              <b>{filmComplete ? "音轨结束。身份索引已解锁。" : "请完整观看：三份身份记录的时间线互相冲突。"}</b>
+            </div>
           </div>
-          <button className={guideMode ? "selected" : ""} onClick={() => setGuideMode(true)}>
-            <b>调查员模式（推荐）</b>
-            <span>显示当前目标、推荐工具和三层渐进提示。</span>
-          </button>
-          <button className={!guideMode ? "selected" : ""} onClick={() => setGuideMode(false)}>
-            <b>无提示模式</b>
-            <span>只保留档案原文和案件板，不显示下一步。</span>
-          </button>
-          <button
-            className="prologue-primary"
-            disabled={prologueOpened.length < prologueRecords.length}
-            onClick={() => { beep(78, 0.65); setPrologueStage("identity"); }}
-          >
-            {prologueOpened.length < prologueRecords.length ? `还需拆封 ${prologueRecords.length - prologueOpened.length} 份记录` : "选择一段记忆进入案件 →"}
-          </button>
+          <aside className="film-index">
+            <div>
+              <span>记录摘要</span>
+              <p>1998：归巢实验启动</p>
+              <p>2001：B2 事故与闭站</p>
+              <p>{sessionDate.slice(0, 4)}：封存磁盘再次写入</p>
+            </div>
+            <blockquote>“如果系统要求你选择身份，不要选最像你的那个。”</blockquote>
+            <button
+              className="prologue-primary"
+              disabled={!filmComplete}
+              onClick={() => { beep(84, 0.7); setPrologueStage("identity"); }}
+            >
+              {filmComplete ? "挂载身份索引 →" : "录像结束后继续"}
+            </button>
+            <a className="film-help-link" href={guideHref}>终端操作与资料检索说明</a>
+          </aside>
         </section>
       </main>
     );
@@ -959,7 +958,7 @@ export default function Home() {
         <div className="crt-lines" aria-hidden="true" />
         <header className="prologue-systemline">
           <button onClick={() => { setPendingRole(null); setRoleFragments([]); }}>← 返回身份缓存</button>
-          <span>{roles[pendingRole].code} / MEMORY VALIDATION</span>
+          <span>{roles[pendingRole].code} / 人员记录恢复</span>
           <time>{roleFragments.length}/{prelude.fragments.length}</time>
         </header>
         <section className="role-prelude-layout">
@@ -972,8 +971,8 @@ export default function Home() {
           </aside>
           <section className="memory-fragments">
             <header>
-              <span>恢复前验证 / 不保证记忆属于本人</span>
-              <h2>打开三段与你有关、却无法同时为真的记录。</h2>
+              <span>关联记录 / 来源校验失败</span>
+              <h2>该人员名下存在三份无法同时成立的原始记录。</h2>
             </header>
             <div>
               {prelude.fragments.map((fragment, index) => {
@@ -989,15 +988,15 @@ export default function Home() {
                   >
                     <span>{fragment.stamp}</span>
                     <h3>{fragment.title}</h3>
-                    {opened ? <><p>{fragment.body}</p><i>{fragment.sting}</i></> : <b>恢复片段 {String(index + 1).padStart(2, "0")}</b>}
+                    {opened ? <><p>{fragment.body}</p><i>{fragment.sting}</i></> : <b>打开扫描件 {String(index + 1).padStart(2, "0")}</b>}
                   </button>
                 );
               })}
             </div>
             <footer>
-              <p>选择身份不是选择难度。它决定私人任务、结局余波，以及哪些档案会首先对你说谎。</p>
+              <p>选择一个人员索引后，终端只会挂载该人员具备权限读取的原始分区。</p>
               <button className="prologue-primary" disabled={roleFragments.length < prelude.fragments.length} onClick={confirmRole}>
-                {roleFragments.length < prelude.fragments.length ? "请先验证全部记忆片段" : `以 ${roles[pendingRole].code} 身份开始调查 →`}
+                {roleFragments.length < prelude.fragments.length ? "请先打开全部关联记录" : `挂载 ${roles[pendingRole].code} 工作区 →`}
               </button>
             </footer>
           </section>
@@ -1017,8 +1016,8 @@ export default function Home() {
         </header>
         <section className="identity-copy">
           <p>临海认知续存研究所</p>
-          <h1>请选择{scarred ? "她" : "你"}<br />愿意相信的<br /><em>记忆</em></h1>
-          <small>{scarred ? "欢迎回来，REMOTE/017。三种成人预测正在等待你再次扮演。" : "警告：身份不是职业难度。它决定哪些记录会对你撒谎。"}</small>
+          <h1>选择待恢复的<br />人员工作区<br /><em>索引</em></h1>
+          <small>{scarred ? "REMOTE/017 已连接。三个成人索引正在请求再次挂载。" : "权限来自事故前的离线缓存；同一份记录在不同人员名下可能呈现不同内容。"}</small>
         </section>
         <section className="identity-grid">
           {(Object.keys(roles) as Role[]).map((id) => (
@@ -1045,7 +1044,7 @@ export default function Home() {
       <div className="crt-lines" aria-hidden="true" />
       <header className="os-menubar">
         <button className="os-logo" onClick={() => setToast("MNEMOSYNE OS build 0417 / 未授权副本")}>M</button>
-        <span>文件</span><span>编辑</span><span>{secondLoop === 2 ? "不要查看" : "查看"}</span><a className="menubar-manual-link" href={guideHref}>攻略</a>
+        <span>文件</span><span>编辑</span><span>{secondLoop === 2 ? "不要查看" : "查看"}</span><a className="menubar-manual-link" href={guideHref}>操作手册</a>
         <div className="os-spacer" />
         {secondLoop === 2 && <b className="loop-indicator">DAY 2 / 你已结束过一次</b>}
         <button className={guideMode ? "guide-toggle active" : "guide-toggle"} onClick={() => setGuideMode((value) => !value)}>引导:{guideMode ? "ON" : "OFF"}</button>
@@ -1173,35 +1172,43 @@ export default function Home() {
                     <button
                       key={entry.day}
                       className={`${entry.day === corridorDay ? "active" : ""} ${corridorMarks.includes(entry.day) ? "done" : ""}`}
-                      onClick={() => { setCorridorDay(entry.day); setCorridorChoice(""); }}
+                      onClick={() => { setCorridorDay(entry.day); setCorridorPin(null); setCorridorNote(""); }}
                     >
                       {entry.day}
                     </button>
                   ))}
                 </div>
               </header>
-              <div className="corridor-feed">
+              <div
+                className="corridor-feed"
+                role="button"
+                tabIndex={0}
+                aria-label="监控画面标注区；点击可放置异常标记"
+                onClick={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  setCorridorPin({
+                    x: ((event.clientX - rect.left) / rect.width) * 100,
+                    y: ((event.clientY - rect.top) / rect.height) * 100,
+                  });
+                }}
+              >
                 <img src={asset(corridorDays[corridorDay - 1].image)} alt={`东廊第 ${corridorDay} 天监控画面`} />
                 <div className="feed-overlay"><span>CAM B2-E / DAY {corridorDay}</span><time>04:17:00</time></div>
+                {corridorPin && <span className="corridor-pin" style={{ left: `${corridorPin.x}%`, top: `${corridorPin.y}%` }}><i />标记 {corridorDay}</span>}
                 {corridorDay >= 5 && <div className="face-counter">FACE: {corridorDay >= 6 ? "04" : "01"}<br />BODY: {corridorDay >= 7 ? "01" : "00"}<br />OBSERVER: 01</div>}
                 {corridorDay === 2 && <div className="sound-before-object">[轮声从右声道经过，但档案车坐标未变化]</div>}
               </div>
               <div className="corridor-analysis">
                 <div className="daily-log"><span>自动巡检记录</span><p>{corridorDays[corridorDay - 1].log}</p></div>
-                <fieldset>
-                  <legend>{corridorDays[corridorDay - 1].question}</legend>
-                  {corridorDays[corridorDay - 1].options.map(([value, label]) => (
-                    <label key={value}>
-                      <input type="radio" name={`corridor-${corridorDay}`} value={value} checked={corridorChoice === value} onChange={(event) => setCorridorChoice(event.target.value)} />
-                      <span>{label}</span>
-                    </label>
-                  ))}
-                </fieldset>
-                <button className="corridor-submit" disabled={!corridorChoice || corridorMarks.includes(corridorDay)} onClick={submitCorridor}>
-                  {corridorMarks.includes(corridorDay) ? "本片段已登记" : "登记异常并返回片段索引"}
+                <label className="corridor-report">
+                  <span>{corridorDays[corridorDay - 1].instruction}</span>
+                  <textarea value={corridorNote} onChange={(event) => setCorridorNote(event.target.value)} placeholder="点击画面落下标记，然后填写短句。系统按物体、位置与日志进行关联…" />
+                </label>
+                <button className="corridor-submit" disabled={!corridorPin || !corridorNote.trim() || corridorMarks.includes(corridorDay)} onClick={submitCorridor}>
+                  {corridorMarks.includes(corridorDay) ? "本片段已登记" : "提交异常标注"}
                 </button>
               </div>
-              <footer><span>观看进度：{corridorMarks.length}/7</span><i>{corridorDay >= 4 ? "提示：不要只看走廊。检查系统如何描述它。" : "画面未经人工标注。"}</i></footer>
+              <footer><span>已核验片段：{corridorMarks.length}/7</span><i>{corridorDay >= 4 ? "备注：画面、日志与建筑图纸必须能够互相解释。" : "画面未经人工标注。"}</i></footer>
             </div>
           )}
 
@@ -1217,18 +1224,42 @@ export default function Home() {
               </div>
               <div className="query-history">
                 <span>历史：</span>
-                {searches.length ? searches.map((term) => <button key={term} onClick={() => { setQuery(term); setResults(searchIndex[term]); }}>{term}</button>) : <i>无</i>}
+                {searches.length ? searches.map((term) => <button key={term} onClick={() => { setQuery(term); setResults(searchIndex[term]); setSelectedRecord(null); }}>{term}</button>) : <i>无</i>}
               </div>
-              <div className="search-results">
-                {results.length === 0 ? (
-                  <div className="empty-results"><b>RECORD QUERY / READY</b><p>真正的关键词藏在网页用词、打印批注、门禁地点和人物口述里。</p></div>
-                ) : results.map((record) => (
-                  <button key={record.id} onClick={() => openRecord(record)}>
-                    <span>{record.id}</span>
-                    <div><small>{record.date}　{record.type}</small><h3>{record.title}</h3><p>{record.excerpt}</p></div>
-                    <i>{record.evidence && found.includes(record.evidence) ? "已归档" : "打开"}</i>
-                  </button>
-                ))}
+              <div className="search-workspace">
+                <div className="search-results">
+                  {results.length === 0 ? (
+                    <div className="empty-results"><b>馆藏全文索引已连接</b><p>输入通知、地点、人员或记录里出现过的原词。旧系统不会自动扩展近义词。</p></div>
+                  ) : results.map((record) => (
+                    <button key={record.id} className={selectedRecord?.id === record.id ? "selected" : ""} onClick={() => openRecord(record)}>
+                      <span>{record.id}</span>
+                      <div><small>{record.date}　{record.type}</small><h3>{record.title}</h3><p>{record.excerpt}</p><u>打开馆藏记录 →</u></div>
+                      <i>{record.evidence && found.includes(record.evidence) ? "已登记" : "全文"}</i>
+                    </button>
+                  ))}
+                </div>
+                <article className={`record-reader ${selectedRecord ? "open" : ""}`}>
+                  {selectedRecord ? (
+                    <>
+                      <header><span>临档数备 / {selectedRecord.type}</span><button onClick={() => setSelectedRecord(null)}>关闭</button></header>
+                      <div className="record-stamp"><b>{selectedRecord.id}</b><small>数字化批次 M17-04 / 校验未完成</small></div>
+                      <h2>{selectedRecord.title}</h2>
+                      <dl>
+                        <div><dt>形成日期</dt><dd>{selectedRecord.date}</dd></div>
+                        <div><dt>载体类型</dt><dd>{selectedRecord.type}</dd></div>
+                        <div><dt>开放状态</dt><dd>内部查阅</dd></div>
+                      </dl>
+                      <p>{selectedRecord.excerpt}</p>
+                      <p>本条目由事故后离线索引恢复。页码、附件序号与馆藏登记表无法完全对应；引用前应与第二来源交叉核验。</p>
+                      <footer>
+                        <button onClick={() => archiveRecord(selectedRecord)}>
+                          {selectedRecord.evidence && found.includes(selectedRecord.evidence) ? "关联项已登记" : selectedRecord.id === "CCTV-12" || selectedRecord.id === "C-017" ? "打开随附扫描件" : "登记关联项"}
+                        </button>
+                        <small>阅读操作将写入当前人员索引。</small>
+                      </footer>
+                    </>
+                  ) : <div className="reader-placeholder"><span>未打开记录</span><p>从左侧结果中打开题名、记录号或“全文”链接。</p></div>}
+                </article>
               </div>
             </div>
           )}
@@ -1241,15 +1272,19 @@ export default function Home() {
               </div>
               <table>
                 <thead><tr><th>显示时间</th>{clockCorrected && <th>实际时间</th>}<th>来源</th><th>凭证</th><th>事件</th></tr></thead>
-                <tbody>{accessRows.map((row) => (
-                  <tr key={`${row.shown}-${row.source}`} className={clockCorrected && row.shown !== row.real ? "shifted" : ""}>
+                <tbody>{accessRows.map((row, index) => (
+                  <tr
+                    key={`${row.shown}-${row.source}`}
+                    className={`${clockCorrected && row.shown !== row.real ? "shifted" : ""} ${selectedAccessRow === index ? "selected" : ""}`}
+                    onClick={() => clockCorrected && setSelectedAccessRow(index)}
+                  >
                     <td>{row.shown}</td>{clockCorrected && <td>{row.real}</td>}<td>{row.source}</td><td>{row.actor}</td><td>{row.event}</td>
                   </tr>
                 ))}</tbody>
               </table>
               <div className="access-question">
-                <p>林桥的大厅记录显示她在 03:58 已离开。校时后，哪条记录变得无法由她本人完成？</p>
-                <button onClick={() => clockCorrected ? addEvidence("clock") : setToast("必须先校正不同设备的时间。")}>钉入矛盾记录</button>
+                <p>执行校时后，直接点击时间线上与大厅离开记录冲突的那一行，再登记异常。</p>
+                <button onClick={() => clockCorrected && selectedAccessRow === 2 ? addEvidence("clock") : setToast(clockCorrected ? "当前行与 03:58 的离开记录仍可同时成立。" : "必须先校正不同设备的时间。")}>登记所选记录</button>
               </div>
             </div>
           )}
@@ -1281,14 +1316,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="audio-deduction">
-                <p>在 00:14–00:19，声场中最重要的异常是什么？</p>
-                <select value={audioAnswer} onChange={(event) => setAudioAnswer(event.target.value)}>
-                  <option value="">选择推断…</option>
-                  <option value="footsteps">脚步声方向相反</option>
-                  <option value="duplicate">相同女声同时来自两间房</option>
-                  <option value="relay">继电器提前吸合</option>
-                </select>
-                <button onClick={submitAudio}>{transcriptAnomaly ? "已确认" : "提交推断"}</button>
+                <p>监听状态：{listenedRooms.length ? listenedRooms.map((id) => audioRooms[id].label).join("、") : "尚未选择房间"}。将时间停在同一语句出现的窗口，分别监听两个声源。</p>
+                <output>{audioTime >= 14 && audioTime <= 19 ? "时间窗已锁定" : "等待重叠时间窗"}</output>
+                <button onClick={submitAudio}>{transcriptAnomaly ? "重叠报告已生成" : "生成双通道重叠报告"}</button>
               </div>
             </div>
           )}
@@ -1296,18 +1326,29 @@ export default function Home() {
           {activeApp === "compare" && (
             <div className="compare-app">
               <header><div><b>IMAGE DELTA / B2_ACCEPTANCE</b><span>同一底片的两个公开版本。滑动遮罩寻找不是由裁切造成的差异。</span></div><output>{diff}%</output></header>
-              <div className="photo-diff">
+              <div
+                className="photo-diff"
+                role="button"
+                tabIndex={0}
+                aria-label="图像差分标注区"
+                onClick={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  setPhotoMark({
+                    x: ((event.clientX - rect.left) / rect.width) * 100,
+                    y: ((event.clientY - rect.top) / rect.height) * 100,
+                  });
+                }}
+              >
                 <img src={asset("/archive-b2-redacted.webp")} alt="2001 年公开合影版本" />
                 <div className="original-layer" style={{ width: `${diff}%` }}><img src={asset("/archive-b2.png")} alt="1998 年原始合影版本" /></div>
                 <span className="label-left">1998 原始底片</span><span className="label-right">2001 公开版本</span>
                 <i style={{ left: `${diff}%` }} />
+                {photoMark && <b className="photo-mark" style={{ left: `${photoMark.x}%`, top: `${photoMark.y}%` }}>＋</b>}
               </div>
               <input type="range" min="0" max="100" value={diff} onChange={(event) => setDiff(Number(event.target.value))} />
               <div className="compare-question">
-                <span>删除操作没有改变纸张折痕。被擦除的是谁？</span>
-                <select value={photoAnswer} onChange={(event) => setPhotoAnswer(event.target.value)}>
-                  <option value="">选择人物…</option><option value="lin">林桥</option><option value="shen">沈雁</option><option value="fang">方铎</option>
-                </select>
+                <span>拖动分界线比较同一张底片，然后直接点击被删除、但折痕仍连续的区域。</span>
+                <output>{photoMark ? `标记坐标 ${Math.round(photoMark.x)} / ${Math.round(photoMark.y)}` : "尚未标记"}</output>
                 <button onClick={submitPhoto}>记录差分</button>
               </div>
             </div>
@@ -1440,21 +1481,19 @@ EXPORT          pending`}</pre>
                     </article>
                   </div>
                   <div className="last-question">
-                    <p>如果事故档案都是即时生成的，系统为什么故意留下能揭穿自己的矛盾？</p>
-                    <label><input type="radio" name="final-motive" value="reaction" checked={finalMotive === "reaction"} onChange={(event) => setFinalMotive(event.target.value)} /><span>因为“发现真相后的道德选择”才是它要采集的反应</span></label>
-                    <label><input type="radio" name="final-motive" value="damage" checked={finalMotive === "damage"} onChange={(event) => setFinalMotive(event.target.value)} /><span>因为系统损坏，无法删除旧文件</span></label>
-                    <label><input type="radio" name="final-motive" value="ghost" checked={finalMotive === "ghost"} onChange={(event) => setFinalMotive(event.target.value)} /><span>因为 017 的鬼魂在帮助玩家</span></label>
+                    <p>如果事故档案都是即时生成的，系统为什么故意留下能揭穿自己的矛盾？请用审计结论写一句话。</p>
+                    <textarea value={finalMotive} onChange={(event) => setFinalMotive(event.target.value)} placeholder="系统需要观察访问者在发现真相之后……" />
                   </div>
                   <button className="submit-case" disabled={found.length < 12} onClick={submitTrueCase}>提交对第一次结局的反证</button>
                 </div>
               ) : !caseSolved ? (
                 <>
                   <header><span>FINAL INFERENCE / 第一次结案</span><b>{found.length}/15 条记录已钉入</b></header>
-                  <div className="case-warning">结论必须同时由题目、证据对和七日巡廊支持。两份“都很可疑”的记录不一定能证明同一件事。</div>
+                  <div className="case-warning">请像撰写内部调查报告一样填写三项结论，再为两条主张附上成对记录。系统只核验事实关键词与证据关系。</div>
                   <div className="questions">
-                    <label><span>01</span><div><b>04:16 的“沈雁”为什么能同时出现在两间房？</b><select value={deduction.q1} onChange={(event) => setDeduction({ ...deduction, q1: event.target.value })}><option value="">未推断</option><option value="tape">录音被循环播放</option><option value="duplicate">一个声音来自模型生成</option><option value="twins">她有一名双胞胎</option></select></div></label>
-                    <label><span>02</span><div><b>“017”最初指代什么？</b><select value={deduction.q2} onChange={(event) => setDeduction({ ...deduction, q2: event.target.value })}><option value="">未推断</option><option value="patient">失踪患者</option><option value="drug">记忆操控药物</option><option value="model">三份记忆的调和模型</option></select></div></label>
-                    <label><span>03</span><div><b>哪条记录证明模型能在本人失去意识后继续用她的口吻叙述？</b><select value={deduction.q3} onChange={(event) => setDeduction({ ...deduction, q3: event.target.value })}><option value="">未推断</option><option value="photo">被修改的合影</option><option value="pager">04:21 BP 机上传包</option><option value="door">B2 门禁漂移</option></select></div></label>
+                    <label><span>01</span><div><b>04:16 的“沈雁”为什么能同时出现在两间房？</b><input value={deduction.q1} onChange={(event) => setDeduction({ ...deduction, q1: event.target.value })} placeholder="写下声场重叠说明…" /></div></label>
+                    <label><span>02</span><div><b>“017”最初指代什么？</b><input value={deduction.q2} onChange={(event) => setDeduction({ ...deduction, q2: event.target.value })} placeholder="写下批次与项目的真实含义…" /></div></label>
+                    <label><span>03</span><div><b>哪条记录证明本人失去意识后仍有第一人称叙述？</b><input value={deduction.q3} onChange={(event) => setDeduction({ ...deduction, q3: event.target.value })} placeholder="写下记录时间、设备或编号…" /></div></label>
                   </div>
                   <div className="link-board surface">
                     <article><span>证据对 A</span><h3>事故通报在事故前已经写好。</h3><div><EvidenceSelect found={found} value={links.premeditated[0]} onChange={(value) => setLink("premeditated", 0, value)} /><b>＋</b><EvidenceSelect found={found} value={links.premeditated[1]} onChange={(value) => setLink("premeditated", 1, value)} /></div></article>
@@ -1475,7 +1514,7 @@ EXPORT          pending`}</pre>
                   <h2>{endingCopy.title}</h2>
                   <p>{endingCopy.body}</p>
                   <blockquote>{endingCopy.fate}</blockquote>
-                  <div><b>隐藏任务：{hiddenTaskDone ? "完成" : "未完成"}</b><small>{roles[role].task}</small></div>
+                  <div><b>补充核验：{hiddenTaskDone ? "完成" : "未完成"}</b><small>{roles[role].task}</small></div>
                   <button onClick={() => setFinale(null)}>返回协议选择</button>
                   <button className="exit-protocol" onClick={enterSecondLoop}>结束调查并退出系统</button>
                   <small className="ending-time">结案用时：00:04:17　/　后台进程仍有 1 项</small>
@@ -1491,15 +1530,15 @@ EXPORT          pending`}</pre>
             <Portrait index={roles[role].index} alt="" />
             <div><span>{roles[role].code}</span><b>{roles[role].name}</b><p>{roles[role].title}</p></div>
           </div>
-          <div className="task-note"><b>私人任务</b><p>{roles[role].task}</p><span>{hiddenTaskDone ? "■ 已完成" : "□ 未确认"}</span></div>
+          <div className="task-note"><b>人员关联核验</b><p>{roles[role].task}</p><span>{hiddenTaskDone ? "■ 已闭合" : "□ 待确认"}</span></div>
           {guideMode && (
             <section className="guide-panel">
               <header>
-                <span>调查引导 / {guideProgress}/{guideLeads.length}</span>
-                <button onClick={() => setGuideMode(false)}>关闭</button>
+                <span>未闭合审查项 / {guideProgress}/{guideLeads.length}</span>
+                <button onClick={() => setGuideMode(false)}>隐藏</button>
               </header>
               <div className="guide-progress"><i style={{ width: `${(guideProgress / guideLeads.length) * 100}%` }} /></div>
-              <small>当前建议，不限制调查顺序</small>
+              <small>索引建议，不限制资料读取顺序</small>
               <h3>{activeLead.title}</h3>
               <p>{activeLead.why}</p>
               <div className="guide-apps">
@@ -1509,13 +1548,13 @@ EXPORT          pending`}</pre>
                   </button>
                 ))}
               </div>
-              {activeHintLevel > 0 && <div className={`guide-hint level-${activeHintLevel}`}><span>提示 {activeHintLevel}/3</span><p>{activeLead.hints[activeHintLevel - 1]}</p></div>}
+              {activeHintLevel > 0 && <div className={`guide-hint level-${activeHintLevel}`}><span>检索建议 {activeHintLevel}/3</span><p>{activeLead.hints[activeHintLevel - 1]}</p></div>}
               <div className="guide-actions">
                 <button disabled={activeHintLevel >= 3} onClick={() => {
                   setHintForLead(activeLead.id);
                   setHintLevel((level) => hintForLead === activeLead.id ? Math.min(3, level + 1) : 1);
                 }}>
-                  {activeHintLevel === 0 ? "需要一点提示" : activeHintLevel < 3 ? "再具体一点" : "已显示直接步骤"}
+                  {activeHintLevel === 0 ? "请求检索建议" : activeHintLevel < 3 ? "展开操作建议" : "维护步骤已展开"}
                 </button>
                 {activeHintLevel > 0 && <button onClick={() => setHintLevel(0)}>收起</button>}
               </div>
@@ -1537,7 +1576,7 @@ EXPORT          pending`}</pre>
             <span className={corridorMarks.length === 7 ? "earned" : ""}>第八次巡检</span>
             <span className={brokeProtocolEarly ? "earned" : ""}>不按剧本</span>
           </div>
-          <label className="notepad"><span>调查员便笺 / 自动保存</span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="写下人物、时间与矛盾。游戏不会替你整理。"/></label>
+          <label className="notepad"><span>审查员工作便笺 / 本机暂存</span><textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="写下人物、时间与矛盾。系统不会替你整理。"/></label>
         </aside>
       </section>
 
@@ -1551,16 +1590,16 @@ EXPORT          pending`}</pre>
       {showDeskIntro && (
         <div className="desk-intro-backdrop">
           <section className="desk-intro">
-            <WindowBar title={`FIRST SESSION — ${roles[role].code}`} onClose={() => setShowDeskIntro(false)} />
+            <WindowBar title={`WORKSPACE MOUNT — ${roles[role].code}`} onClose={() => setShowDeskIntro(false)} />
             <div className="desk-intro-body">
               <div className="desk-role">
                 <Portrait index={roles[role].index} alt={`${roles[role].name} 身份照片`} />
-                <div><span>你为什么在这里</span><h2>{roles[role].name}</h2><p>{roles[role].task}</p></div>
+                <div><span>人员索引摘要</span><h2>{roles[role].name}</h2><p>{roles[role].task}</p></div>
               </div>
               <div className="desk-rules">
-                <article><b>01 / 自由调查</b><p>左侧九个工具可按任意顺序打开。闪烁边框只代表当前建议，不是唯一路线。</p></article>
-                <article><b>02 / 自动归档</b><p>关键操作会把记录钉入右侧案卷。点击“案卷”可查看证据说明与私人任务。</p></article>
-                <article><b>03 / 渐进提示</b><p>卡住时在案卷中逐层展开提示；第一层给方向，第三层才给直接操作。</p></article>
+                <article><b>01 / 工作区</b><p>左侧九个资料工具可按任意顺序打开。闪烁边框表示索引服务建议的入口。</p></article>
+                <article><b>02 / 关联记录</b><p>关键操作会把可交叉验证的记录登记到右侧案卷，原始条目仍保留在各自系统中。</p></article>
+                <article><b>03 / 检索服务</b><p>索引服务会逐层展开维护建议；前两层只提供方向，第三层显示具体操作。</p></article>
               </div>
               <div className="first-lead">
                 <span>建议从一个矛盾开始</span>
@@ -1568,9 +1607,9 @@ EXPORT          pending`}</pre>
                 <p>{activeLead.why}</p>
               </div>
               <div className="desk-intro-actions">
-                <button onClick={() => setShowDeskIntro(false)}>我想自由调查</button>
+                <button onClick={() => setShowDeskIntro(false)}>关闭说明</button>
                 <button className="primary" onClick={() => { setShowDeskIntro(false); setShowEvidence(true); openApp(activeLead.apps[0]); }}>
-                  打开推荐入口：{apps.find((app) => app.id === activeLead.apps[0])?.label} →
+                  打开索引入口：{apps.find((app) => app.id === activeLead.apps[0])?.label} →
                 </button>
               </div>
             </div>
