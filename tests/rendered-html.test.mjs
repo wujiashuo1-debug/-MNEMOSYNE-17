@@ -31,7 +31,7 @@ test("server-renders the game boot shell and production metadata", async () => {
   const html = await response.text();
   assert.match(html, /<html lang="zh-CN">/i);
   assert.match(html, /<title>MNEMOSYNE-17 \/ 没有第二天<\/title>/i);
-  assert.match(html, /非线性网页心理恐怖调查游戏/);
+  assert.match(html, /B2 事故封存资料数字化入口/);
   assert.match(html, /SEARCHING FOR PREVIOUS WITNESS/);
   assert.match(html, /og:image/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
@@ -45,7 +45,7 @@ test("server-renders the complete investigator manual", async () => {
   assert.match(html, /最短完整通关路线/);
   assert.match(html, /generation=0/);
   assert.match(html, /REMOTE\/017/);
-  assert.match(html, /七日巡廊答案表/);
+  assert.match(html, /七日巡廊标注表/);
 });
 
 test("ships the nonlinear investigation systems and project artwork", async () => {
@@ -62,11 +62,13 @@ test("ships the nonlinear investigation systems and project artwork", async () =
   assert.match(page, /generation=0/);
   assert.match(page, /REMOTE\/017/);
   assert.match(page, /corridorDays\.map/);
-  assert.match(page, /十九年前结束的事故/);
+  assert.match(page, /B2 事故资料接收说明/);
   assert.match(page, /rolePreludes/);
-  assert.match(page, /调查员模式（推荐）/);
-  assert.match(page, /需要一点提示/);
-  assert.match(page, /全流程攻略/);
+  assert.match(page, /orientation-film\.mp4/);
+  assert.match(page, /corridorPin/);
+  assert.match(page, /record-reader/);
+  assert.match(page, /请求检索建议/);
+  assert.match(page, /操作手册/);
   assert.match(guide, /11 条表层证据完整位置/);
   assert.match(guide, /第二次反证与真结局/);
   assert.match(css, /\.corridor-app/);
@@ -84,6 +86,10 @@ test("ships the nonlinear investigation systems and project artwork", async () =
     access(new URL("../public/corridor-day4.webp", import.meta.url)),
     access(new URL("../public/corridor-day7.webp", import.meta.url)),
     access(new URL("../public/cohort-1984.webp", import.meta.url)),
+    access(new URL("../public/orientation-film.mp4", import.meta.url)),
+    access(new URL("../public/orientation-film.vtt", import.meta.url)),
+    access(new URL("../public/orientation-institute-1998.png", import.meta.url)),
+    access(new URL("../public/orientation-lab-2001.png", import.meta.url)),
     access(new URL("../public/og.png", import.meta.url)),
   ]);
 
