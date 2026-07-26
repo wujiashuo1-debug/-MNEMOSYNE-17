@@ -2,13 +2,13 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
+async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", {
+    new Request(`http://localhost${path}`, {
       headers: { accept: "text/html" },
     }),
     {
@@ -37,9 +37,21 @@ test("server-renders the game boot shell and production metadata", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
 });
 
+test("server-renders the complete investigator manual", async () => {
+  const response = await render("/guide");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /调查员.*全流程手册/s);
+  assert.match(html, /最短完整通关路线/);
+  assert.match(html, /generation=0/);
+  assert.match(html, /REMOTE\/017/);
+  assert.match(html, /七日巡廊答案表/);
+});
+
 test("ships the nonlinear investigation systems and project artwork", async () => {
-  const [page, css, layout] = await Promise.all([
+  const [page, guide, css, layout] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/guide/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
   ]);
@@ -50,9 +62,21 @@ test("ships the nonlinear investigation systems and project artwork", async () =
   assert.match(page, /generation=0/);
   assert.match(page, /REMOTE\/017/);
   assert.match(page, /corridorDays\.map/);
+  assert.match(page, /十九年前结束的事故/);
+  assert.match(page, /rolePreludes/);
+  assert.match(page, /调查员模式（推荐）/);
+  assert.match(page, /需要一点提示/);
+  assert.match(page, /全流程攻略/);
+  assert.match(guide, /11 条表层证据完整位置/);
+  assert.match(guide, /第二次反证与真结局/);
   assert.match(css, /\.corridor-app/);
   assert.match(css, /\.audit-app/);
   assert.match(css, /\.true-ending/);
+  assert.match(css, /\.prologue-screen/);
+  assert.match(css, /\.role-prelude-layout/);
+  assert.match(css, /\.guide-panel/);
+  assert.match(css, /\.desk-intro/);
+  assert.match(css, /\.manual-shell/);
   assert.match(layout, /MNEMOSYNE-17 \/ 没有第二天/);
 
   await Promise.all([
