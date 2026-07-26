@@ -6,6 +6,7 @@ type Role = "lin" | "shen" | "fang";
 type AppId = "intranet" | "corridor" | "search" | "access" | "audio" | "compare" | "source" | "audit" | "case";
 type WebPage = "home" | "people" | "news" | "guestbook";
 type Finale = "publish" | "erase" | "ask";
+type PrologueStage = "package" | "brief" | "identity";
 
 const roles: Record<Role, { name: string; title: string; code: string; index: number; task: string; memory: string }> = {
   lin: {
@@ -31,6 +32,68 @@ const roles: Record<Role, { name: string; title: string; code: string; index: nu
     index: 2,
     task: "查明姐姐方宁是否真的作为 017 号对象入院。",
     memory: "你从没去过地下二层。合影却比你的记忆更早认识你。",
+  },
+};
+
+const prologueRecords = [
+  {
+    id: "accident",
+    stamp: "临海晚报 / 2001.07.18",
+    title: "地下二层电气事故，研究所宣布永久关闭",
+    body: "官方称凌晨停电造成设备损坏，所有实验对象均已安全转院。记者未能取得转院名单，也没有医院承认接收过相关人员。",
+    annotation: "有人用红笔写着：公告文件比事故早创建两天。",
+  },
+  {
+    id: "missing",
+    stamp: "未结人员记录 / 2001—2004",
+    title: "三个人在同一晚留下互相冲突的最后记录",
+    body: "研究员林桥的门禁显示她已离开；记者沈雁没有离开记录；网络维护员方铎则坚称自己从未进入地下二层。",
+    annotation: "附件合影里，三个人同时站在一扇尚未建成的蓝门前。",
+  },
+  {
+    id: "parcel",
+    stamp: "匿名便条 / 今日 04:17",
+    title: "“不要调查谁死了。先调查谁真的存在过。”",
+    body: "数字遗物来自研究所拆除后的封存仓库。磁盘只接受三枚身份校验码，并会根据所选身份返回不同的档案版本。",
+    annotation: "便条背面：如果网站叫出了你的名字，不要纠正它。",
+  },
+] as const;
+
+const rolePreludes: Record<Role, {
+  eyebrow: string;
+  opening: string;
+  question: string;
+  fragments: { id: string; stamp: string; title: string; body: string; sting: string }[];
+}> = {
+  lin: {
+    eyebrow: "视角 A / 加害者可能知道自己做过什么",
+    opening: "你恢复的是林桥的工作记忆。她参与研制“调和稳定剂”，并在事故前一天提交辞呈。官方记录说她及时离开了，但她留下的停机指令从未被签收。",
+    question: "如果你确实在 03:58 离开，04:05 打开蓝门的人是谁？",
+    fragments: [
+      { id: "resign", stamp: "人事处 / 2001.07.16", title: "辞职申请提前获批", body: "离岗日期被填写为事故发生前一天。批准人签名与林桥本人笔迹高度相似。", sting: "你记得递交申请，却不记得批准它。" },
+      { id: "exit", stamp: "大厅门禁 / 03:58:02", title: "LQ-06 已离开建筑", body: "这条记录是你唯一确信没有被篡改的记忆。录像中的你没有回头。", sting: "画面外传来刷卡声。你的卡还在口袋里。" },
+      { id: "order", stamp: "手写停机单 / 未签收", title: "“切断镜室学习回路”", body: "指令要求在 04:00 前物理断开服务器。接收栏为空，纸背却写着“已执行”。", sting: "字迹也是你的。" },
+    ],
+  },
+  shen: {
+    eyebrow: "视角 B / 见证者可能在事件发生前就被写进报道",
+    opening: "你恢复的是沈雁的采访记忆。她独自进入研究所调查失踪对象，携带录音机和 BP 机。她的录音在 04:16 中断，四分钟后却有一篇完整报道以她的口吻上传。",
+    question: "如果你没有离开观察室，服务器室里回答采访的人是谁？",
+    fragments: [
+      { id: "assignment", stamp: "编辑部传真 / 2001.07.17", title: "采访任务没有署名", body: "任务单要求调查“已经发生的 B2 事故”，传真时间却比事故早十一小时。", sting: "收件人栏后来才打上你的名字。" },
+      { id: "tape", stamp: "微型录音带 / 04:16:11", title: "最后一句采访问题", body: "“如果记忆能继续说话，它还是证词，还是一个会迎合提问者的东西？”", sting: "隔壁用你的声音回答：取决于谁先相信。" },
+      { id: "upload", stamp: "寻呼网关 / 04:21:09", title: "612 字节的第一人称报道", body: "上传发生在录音停止后。正文描述了你没有进入过的服务器室。", sting: "末尾附注：记者仍在观察室，请不要惊动。" },
+    ],
+  },
+  fang: {
+    eyebrow: "视角 C / 寻找者可能只是某段记忆为自己编造的亲属",
+    opening: "你恢复的是方铎的维护记录。他接下外包工作，只为寻找失踪的姐姐方宁。研究所档案否认方宁进入过 B2，却不断用她的口吻给方铎留言。",
+    question: "如果方宁不在研究所，知道你们童年暗号的东西是谁？",
+    fragments: [
+      { id: "poster", stamp: "寻人启事 / 1999.11.08", title: "方宁最后出现于公开睡眠实验", body: "登记编号 S-44。项目方坚持她当天已经自行离开，没有进入任何后续实验。", sting: "照片背面写着：小铎，别来接我。" },
+      { id: "contract", stamp: "外包合同 / 1998.12.09", title: "你的合同早于你的入职三年", body: "NET-12 被要求维护一套尚未公开的记忆索引。签名与你现在使用的签名完全一致。", sting: "1998 年你还不会写这个名字。" },
+      { id: "message", stamp: "无来源留言 / 2004.04.17", title: "“你找到的是想念我的东西”", body: "留言包含只有你和方宁知道的童年暗号，但服务器日志显示发送者是 NET-12。", sting: "NET-12 是你。" },
+    ],
   },
 };
 
@@ -189,6 +252,7 @@ type RoomId = keyof typeof audioRooms;
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const asset = (path: string) => `${basePath}${path}`;
+const guideHref = `${basePath}/guide/`;
 
 function Portrait({ index, alt }: { index: number; alt: string }) {
   return (
@@ -268,6 +332,14 @@ export default function Home() {
   const [scarred, setScarred] = useState(false);
   const [sessionDate, setSessionDate] = useState("----/--/--");
   const [hydrated, setHydrated] = useState(false);
+  const [prologueStage, setPrologueStage] = useState<PrologueStage>("package");
+  const [prologueOpened, setPrologueOpened] = useState<string[]>([]);
+  const [pendingRole, setPendingRole] = useState<Role | null>(null);
+  const [roleFragments, setRoleFragments] = useState<string[]>([]);
+  const [guideMode, setGuideMode] = useState(true);
+  const [hintLevel, setHintLevel] = useState(0);
+  const [hintForLead, setHintForLead] = useState("");
+  const [showDeskIntro, setShowDeskIntro] = useState(false);
   const audioCtx = useRef<AudioContext | null>(null);
   const hauntSeen = useRef(0);
   const hiddenAt = useRef(0);
@@ -292,6 +364,7 @@ export default function Home() {
       if (saved.secondLoop === 2) setSecondLoop(2);
       if (Array.isArray(saved.corridorMarks)) setCorridorMarks(saved.corridorMarks);
       if (saved.trueSolved) setTrueSolved(true);
+      if (typeof saved.guideMode === "boolean") setGuideMode(saved.guideMode);
       if (localStorage.getItem("mnemosyne-scar") === "1") setScarred(true);
     } catch {
       // Ignore invalid local save data.
@@ -303,8 +376,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem("mnemosyne-v4", JSON.stringify({ role, found, searches, notes, caseSolved, finale, secondLoop, corridorMarks, trueSolved }));
-  }, [role, found, searches, notes, caseSolved, finale, secondLoop, corridorMarks, trueSolved, hydrated]);
+    localStorage.setItem("mnemosyne-v4", JSON.stringify({ role, found, searches, notes, caseSolved, finale, secondLoop, corridorMarks, trueSolved, guideMode }));
+  }, [role, found, searches, notes, caseSolved, finale, secondLoop, corridorMarks, trueSolved, guideMode, hydrated]);
 
   const beep = useCallback((frequency = 220, duration = 0.05, pan = 0) => {
     if (!sound) return;
@@ -608,12 +681,133 @@ export default function Home() {
     setPostscript(false);
     setLinks({ premeditated: ["", ""], continuation: ["", ""], identities: ["", ""], visitor: ["", ""] });
     setActiveApp("intranet");
+    setPrologueStage("package");
+    setPrologueOpened([]);
+    setPendingRole(null);
+    setRoleFragments([]);
+    setGuideMode(true);
+    setHintLevel(0);
+    setHintForLead("");
+    setShowDeskIntro(false);
     setToast("用户区已清空。系统区未响应。");
   };
 
   const transcriptAnomaly = useMemo(() => found.includes("voice"), [found]);
   const hiddenTaskDone = role === "lin" ? found.includes("css") : role === "shen" ? searches.includes("冷库") && found.includes("pager") : found.includes("hiddenRev");
   const brokeProtocolEarly = secondLoop === 1 && ["cohort", "checksum", "samechild", "observer"].every((id) => found.includes(id));
+  const guideLeads = useMemo(() => [
+    {
+      id: "erased-person",
+      done: found.includes("hiddenRev"),
+      title: "先确认：谁从人员表里消失了？",
+      why: "闭站公告只能证明官方说法。要建立案件，你需要一份与当前网页冲突的旧记录。",
+      apps: ["intranet", "source"] as AppId[],
+      hints: [
+        "旧内网页脚和样式检查器都提到“历史版本”，导航却没有入口。",
+        "网页地址里的 rev=2001 是一个可以改写的参数；人员名录比首页更值得回看。",
+        "打开旧内网的人员名录，把地址中的 rev=2001 改成 rev=1998，再按回车。",
+      ],
+    },
+    {
+      id: "timeline",
+      done: found.includes("clock") && found.includes("pager"),
+      title: "重建 03:58—04:23 的真实顺序",
+      why: "三人的不在场证明来自不同设备。先判断哪一台钟撒了谎，再查事故后仍在说话的设备。",
+      apps: ["access", "search"] as AppId[],
+      hints: [
+        "门禁校时里有一列被隐藏。让异常时钟与可信时钟落在同一时间线上。",
+        "B2 的显示时间整体快了 6 分 14 秒；校正后留意 04:21 的网络事件。",
+        "在门禁校时中执行漂移校正，再到档案检索搜索“04:17”。",
+      ],
+    },
+    {
+      id: "two-voices",
+      done: found.includes("voice"),
+      title: "证明同一个声音同时来自两间房",
+      why: "“听见声音”不是证据。你需要比较同一时间窗、不同空间位置的回放。",
+      apps: ["audio"] as AppId[],
+      hints: [
+        "重点不是频谱形状，而是 04:16 附近哪些房间同时出现同一句回答。",
+        "把时间拖到 14—19 秒，依次监听观察室和服务器室。",
+        "监听观察室与服务器室后，在下方判断中选择“同一声纹同时出现”。",
+      ],
+    },
+    {
+      id: "manufactured",
+      done: found.includes("photo") && found.includes("css"),
+      title: "找出网页如何制造“官方版本”",
+      why: "照片和网页都保留了擦除痕迹。一个藏在人像折痕里，一个藏在打印样式里。",
+      apps: ["compare", "source"] as AppId[],
+      hints: [
+        "图像对照的关键是折痕连续、人物却消失；样式检查要让文字与黑色遮罩分离。",
+        "在图像对照拖动边界确认被删者；在样式检查同时降低遮罩、增大幽灵字号。",
+        "照片答案选沈雁；样式检查将 --mask 降低并把 --ghost-size 调到可读。",
+      ],
+    },
+    {
+      id: "seven-days",
+      done: found.includes("loop"),
+      title: "验证“七天录像”是不是七段录像",
+      why: "巡廊不是找鬼脸。每段都在暴露渲染系统如何响应观看者。",
+      apps: ["corridor"] as AppId[],
+      hints: [
+        "七段可以乱序查看；每段的问题只要求验证记录内部矛盾。",
+        "先看第 1、4、7 天，会更快理解钟、106 房间和递归走廊的关系。",
+        "逐段登记正确异常；完成 7/7 后系统会生成“底层帧复用”记录。",
+      ],
+    },
+    {
+      id: "surface-case",
+      done: caseSolved || secondLoop === 2 || trueSolved,
+      title: "把线索变成一条可反驳的推断",
+      why: "收集不是结案。案件板要求三个答案、两组互相独立的证据，以及完整巡廊记录。",
+      apps: ["case"] as AppId[],
+      hints: [
+        "至少钉入 8 条记录并完成七日巡廊，案件板才具备完整输入。",
+        "事故预谋需要闭站公告与门禁漂移；持续叙述需要声场与 BP 上传包。",
+        "三题依次关注：模型生成的声音、三份记忆调和模型、04:21 上传包。",
+      ],
+    },
+    {
+      id: "audit-truth",
+      done: ["cohort", "checksum", "samechild", "observer"].every((id) => found.includes(id)),
+      title: "不要相信结局：审计证据何时才出现？",
+      why: "系统允许提前打开审计工具。它最害怕的不是你猜错，而是你检查文件是否在点击前存在。",
+      apps: ["audit"] as AppId[],
+      hints: [
+        "审计分为文件分配、身份代际、声纹基线和当前会话四块，可以分别完成。",
+        "把 generation=3 改成 generation=0；文件表按底层分配序列排序。",
+        "完成四块：分配排序、generation=0、声纹叠合、解密 REMOTE/017。",
+      ],
+    },
+    {
+      id: "root-case",
+      done: trueSolved,
+      title: "用审计记录反证你刚刚相信的故事",
+      why: "最后的问题不是谁制造了事故，而是谁在制造“调查员”。",
+      apps: ["case"] as AppId[],
+      hints: [
+        "第二次案件板需要两组反证：三种身份的来源，以及当前访问者的身份。",
+        "身份反证连接归巢班与同一声纹；访问者反证连接文件分配与 REMOTE/017。",
+        "最终动机选择：系统要采集“发现真相后的道德反应”。",
+      ],
+    },
+  ], [found, caseSolved, secondLoop, trueSolved]);
+  const guideProgress = guideLeads.filter((lead) => lead.done).length;
+  const activeLead = guideLeads.find((lead) => !lead.done) || guideLeads[guideLeads.length - 1];
+  const parallelLead = guideLeads.find((lead) => !lead.done && lead.id !== activeLead.id);
+  const activeHintLevel = hintForLead === activeLead.id ? hintLevel : 0;
+
+  const confirmRole = () => {
+    if (!pendingRole || roleFragments.length < rolePreludes[pendingRole].fragments.length) return;
+    const nextRole = pendingRole;
+    setRole(nextRole);
+    setPendingRole(null);
+    addEvidence("shutdown", "身份缓存恢复。闭站公告的构建日期早于事故。");
+    setShowDeskIntro(guideMode);
+    setToast(`${roles[nextRole].code} 已挂载。先确认一份与官方网页冲突的旧记录。`);
+    beep(92, 0.55, roles[nextRole].index === 1 ? 0 : roles[nextRole].index ? 0.55 : -0.55);
+  };
   const choiceAftermath = finale === "publish"
     ? "你选择公开，于是系统把你标记为“服从事实”。"
     : finale === "erase"
@@ -661,6 +855,157 @@ export default function Home() {
     return <main className="cold-boot"><p>640K SYSTEM MEMORY</p><span>SEARCHING FOR PREVIOUS WITNESS...</span></main>;
   }
 
+  if (!role && !scarred && prologueStage === "package") {
+    return (
+      <main className="prologue-screen package-stage">
+        <div className="crt-lines" aria-hidden="true" />
+        <div className="prologue-noise" aria-hidden="true" />
+        <header className="prologue-systemline">
+          <span>REMOVABLE MEDIA / UNREGISTERED</span>
+          <time>{sessionDate}　04:17:00</time>
+        </header>
+        <section className="package-hero">
+          <div className="package-visual">
+            <div className="parcel-shadow" />
+            <img src={asset("/evidence-table.webp")} alt="拆除现场回收的研究所物证与匿名磁盘" />
+            <div className="parcel-label">
+              <b>致：下一位愿意看完的人</b>
+              <span>来源：临海认知续存研究所 / 拆除废料</span>
+              <i>封存编号不存在</i>
+            </div>
+          </div>
+          <article className="package-copy">
+            <span className="case-kicker">ANONYMOUS DIGITAL RELIC / 017</span>
+            <h1>十九年前结束的事故，<br /><em>今天开始给你回信。</em></h1>
+            <p>凌晨 04:17，你收到一份没有寄件人的数字遗物。它来自一座已经拆除的研究所，内容涉及一次没有死者名单、没有转院记录、却提前写好闭站公告的事故。</p>
+            <dl>
+              <div><dt>载体</dt><dd>受损磁盘镜像 M17_0417</dd></div>
+              <div><dt>最后修改</dt><dd>{sessionDate} 04:17 / 就在你打开之后</dd></div>
+              <div><dt>附言</dt><dd>“请不要从死者开始调查。”</dd></div>
+            </dl>
+            <button className="prologue-primary" onClick={() => { beep(84, 0.7); setPrologueStage("brief"); }}>
+              校验并挂载数字遗物 <span>→</span>
+            </button>
+            <small>虚构作品。建议佩戴耳机；所有进度仅保存在当前浏览器。<a className="inline-manual-link" href={guideHref}>查看全流程攻略</a></small>
+          </article>
+        </section>
+      </main>
+    );
+  }
+
+  if (!role && !scarred && prologueStage === "brief") {
+    return (
+      <main className="prologue-screen brief-stage">
+        <div className="crt-lines" aria-hidden="true" />
+        <header className="prologue-systemline">
+          <button onClick={() => setPrologueStage("package")}>← 卸载</button>
+          <span>CASE ORIENTATION / READ {prologueOpened.length}/3</span>
+          <a className="system-manual-link" href={guideHref}>全流程攻略</a>
+        </header>
+        <section className="brief-heading">
+          <span>共同背景 / 每个身份都会看到不同版本</span>
+          <h1>先读完三份互相不承认的记录。</h1>
+          <p>点击档案拆封。你不必记住所有细节，只需要留意：日期、谁声称自己在哪里，以及记录是在事件前还是事件后出现的。</p>
+        </section>
+        <section className="prologue-records">
+          {prologueRecords.map((record, index) => {
+            const opened = prologueOpened.includes(record.id);
+            return (
+              <button
+                key={record.id}
+                className={opened ? "opened" : ""}
+                onClick={() => {
+                  beep(140 + index * 70, 0.12, index - 1);
+                  setPrologueOpened((current) => current.includes(record.id) ? current : [...current, record.id]);
+                }}
+              >
+                <span>{record.stamp}</span>
+                <h2>{record.title}</h2>
+                {opened ? <><p>{record.body}</p><i>{record.annotation}</i></> : <b>点击拆封 / RECORD {String(index + 1).padStart(2, "0")}</b>}
+              </button>
+            );
+          })}
+        </section>
+        <section className="orientation-mode">
+          <div>
+            <span>ASSISTANCE PROTOCOL</span>
+            <h2>你希望系统怎样协助调查？</h2>
+            <p>难度只影响目标提示，不删减剧情、谜题或结局。游戏内可随时切换。</p>
+          </div>
+          <button className={guideMode ? "selected" : ""} onClick={() => setGuideMode(true)}>
+            <b>调查员模式（推荐）</b>
+            <span>显示当前目标、推荐工具和三层渐进提示。</span>
+          </button>
+          <button className={!guideMode ? "selected" : ""} onClick={() => setGuideMode(false)}>
+            <b>无提示模式</b>
+            <span>只保留档案原文和案件板，不显示下一步。</span>
+          </button>
+          <button
+            className="prologue-primary"
+            disabled={prologueOpened.length < prologueRecords.length}
+            onClick={() => { beep(78, 0.65); setPrologueStage("identity"); }}
+          >
+            {prologueOpened.length < prologueRecords.length ? `还需拆封 ${prologueRecords.length - prologueOpened.length} 份记录` : "选择一段记忆进入案件 →"}
+          </button>
+        </section>
+      </main>
+    );
+  }
+
+  if (!role && pendingRole) {
+    const prelude = rolePreludes[pendingRole];
+    return (
+      <main className={`role-prelude role-${pendingRole}`} style={{ "--archive-image": `url("${asset("/archive-b2.png")}")` } as CSSProperties}>
+        <div className="crt-lines" aria-hidden="true" />
+        <header className="prologue-systemline">
+          <button onClick={() => { setPendingRole(null); setRoleFragments([]); }}>← 返回身份缓存</button>
+          <span>{roles[pendingRole].code} / MEMORY VALIDATION</span>
+          <time>{roleFragments.length}/{prelude.fragments.length}</time>
+        </header>
+        <section className="role-prelude-layout">
+          <aside className="role-dossier">
+            <Portrait index={roles[pendingRole].index} alt={`${roles[pendingRole].name} 未裁切档案照片`} />
+            <span>{prelude.eyebrow}</span>
+            <h1>{roles[pendingRole].name}</h1>
+            <p>{prelude.opening}</p>
+            <blockquote>{prelude.question}</blockquote>
+          </aside>
+          <section className="memory-fragments">
+            <header>
+              <span>恢复前验证 / 不保证记忆属于本人</span>
+              <h2>打开三段与你有关、却无法同时为真的记录。</h2>
+            </header>
+            <div>
+              {prelude.fragments.map((fragment, index) => {
+                const opened = roleFragments.includes(fragment.id);
+                return (
+                  <button
+                    key={fragment.id}
+                    className={opened ? "opened" : ""}
+                    onClick={() => {
+                      beep(115 + index * 58, 0.16, index - 1);
+                      setRoleFragments((current) => current.includes(fragment.id) ? current : [...current, fragment.id]);
+                    }}
+                  >
+                    <span>{fragment.stamp}</span>
+                    <h3>{fragment.title}</h3>
+                    {opened ? <><p>{fragment.body}</p><i>{fragment.sting}</i></> : <b>恢复片段 {String(index + 1).padStart(2, "0")}</b>}
+                  </button>
+                );
+              })}
+            </div>
+            <footer>
+              <p>选择身份不是选择难度。它决定私人任务、结局余波，以及哪些档案会首先对你说谎。</p>
+              <button className="prologue-primary" disabled={roleFragments.length < prelude.fragments.length} onClick={confirmRole}>
+                {roleFragments.length < prelude.fragments.length ? "请先验证全部记忆片段" : `以 ${roles[pendingRole].code} 身份开始调查 →`}
+              </button>
+            </footer>
+          </section>
+        </section>
+      </main>
+    );
+  }
+
   if (!role) {
     return (
       <main className={`identity-screen ${scarred ? "scarred" : ""}`} style={{ "--cctv-image": `url("${asset("/cctv-b2.webp")}")`, "--archive-image": `url("${asset("/archive-b2.png")}")` } as CSSProperties}>
@@ -677,7 +1022,7 @@ export default function Home() {
         </section>
         <section className="identity-grid">
           {(Object.keys(roles) as Role[]).map((id) => (
-            <button key={id} className="identity-option" onClick={() => { beep(170 + roles[id].index * 80); setRole(id); addEvidence("shutdown", "身份缓存恢复。闭站公告的构建日期早于事故。"); }}>
+            <button key={id} className="identity-option" onClick={() => { beep(170 + roles[id].index * 80); setPendingRole(id); setRoleFragments([]); }}>
               <Portrait index={roles[id].index} alt={`${roles[id].name} 档案照片`} />
               <div className="identity-meta">
                 <span>{roles[id].code}</span>
@@ -690,7 +1035,7 @@ export default function Home() {
           ))}
         </section>
         {scarred && <div className="scar-card"><span>REMOTE/017</span><b>你</b><p>状态：已被保存为第四种成人可能</p><i>该身份无法主动选择。它在选择别人。</i></div>}
-        <footer className="identity-footer"><span>不要选择“正确”的人。</span><span>没有正确的人。</span></footer>
+        <footer className="identity-footer"><span>不要选择“正确”的人。</span><a href={guideHref}>调查员全流程手册</a><span>没有正确的人。</span></footer>
       </main>
     );
   }
@@ -700,9 +1045,10 @@ export default function Home() {
       <div className="crt-lines" aria-hidden="true" />
       <header className="os-menubar">
         <button className="os-logo" onClick={() => setToast("MNEMOSYNE OS build 0417 / 未授权副本")}>M</button>
-        <span>文件</span><span>编辑</span><span>{secondLoop === 2 ? "不要查看" : "查看"}</span><span>帮助</span>
+        <span>文件</span><span>编辑</span><span>{secondLoop === 2 ? "不要查看" : "查看"}</span><a className="menubar-manual-link" href={guideHref}>攻略</a>
         <div className="os-spacer" />
         {secondLoop === 2 && <b className="loop-indicator">DAY 2 / 你已结束过一次</b>}
+        <button className={guideMode ? "guide-toggle active" : "guide-toggle"} onClick={() => setGuideMode((value) => !value)}>引导:{guideMode ? "ON" : "OFF"}</button>
         <button onClick={() => setSound((value) => !value)}>SND:{sound ? "ON" : "OFF"}</button>
         <button onClick={() => setHorrorMax((value) => !value)}>惊吓:{horrorMax ? "MAX" : "LOW"}</button>
         <span className="os-clock">04:17</span>
@@ -711,7 +1057,7 @@ export default function Home() {
       <section className="desktop">
         <nav className="app-dock" aria-label="调查工具">
           {apps.map((app) => (
-            <button key={app.id} className={`${activeApp === app.id ? "active" : ""} ${app.id === "audit" && secondLoop < 2 ? "unauthorized" : ""}`} onClick={() => openApp(app.id)}>
+            <button key={app.id} className={`${activeApp === app.id ? "active" : ""} ${app.id === "audit" && secondLoop < 2 ? "unauthorized" : ""} ${guideMode && activeLead.apps.includes(app.id) ? "suggested" : ""}`} onClick={() => openApp(app.id)}>
               <i>{app.icon}</i><span>{app.label}</span>
               {app.id === "audit" && secondLoop < 2 && <small>未授权</small>}
               {app.id === "case" && found.length >= 6 && <b />}
@@ -1146,6 +1492,36 @@ EXPORT          pending`}</pre>
             <div><span>{roles[role].code}</span><b>{roles[role].name}</b><p>{roles[role].title}</p></div>
           </div>
           <div className="task-note"><b>私人任务</b><p>{roles[role].task}</p><span>{hiddenTaskDone ? "■ 已完成" : "□ 未确认"}</span></div>
+          {guideMode && (
+            <section className="guide-panel">
+              <header>
+                <span>调查引导 / {guideProgress}/{guideLeads.length}</span>
+                <button onClick={() => setGuideMode(false)}>关闭</button>
+              </header>
+              <div className="guide-progress"><i style={{ width: `${(guideProgress / guideLeads.length) * 100}%` }} /></div>
+              <small>当前建议，不限制调查顺序</small>
+              <h3>{activeLead.title}</h3>
+              <p>{activeLead.why}</p>
+              <div className="guide-apps">
+                {activeLead.apps.map((id) => (
+                  <button key={id} onClick={() => openApp(id)}>
+                    {apps.find((app) => app.id === id)?.icon}　{apps.find((app) => app.id === id)?.label}
+                  </button>
+                ))}
+              </div>
+              {activeHintLevel > 0 && <div className={`guide-hint level-${activeHintLevel}`}><span>提示 {activeHintLevel}/3</span><p>{activeLead.hints[activeHintLevel - 1]}</p></div>}
+              <div className="guide-actions">
+                <button disabled={activeHintLevel >= 3} onClick={() => {
+                  setHintForLead(activeLead.id);
+                  setHintLevel((level) => hintForLead === activeLead.id ? Math.min(3, level + 1) : 1);
+                }}>
+                  {activeHintLevel === 0 ? "需要一点提示" : activeHintLevel < 3 ? "再具体一点" : "已显示直接步骤"}
+                </button>
+                {activeHintLevel > 0 && <button onClick={() => setHintLevel(0)}>收起</button>}
+              </div>
+              {parallelLead && <footer><span>也可以并行调查</span><b>{parallelLead.title}</b></footer>}
+            </section>
+          )}
           {found.length >= 5 && horrorMax && <div className="foreign-note"><span>不是你写的：</span><p>{secondLoop === 2 ? "“我已经替你选过这个角色。你为什么又选了一次？”" : "“别把便笺留给下一个我。”"}</p></div>}
           <div className="evidence-stack">
             <header><span>已钉入记录</span><b>{found.length}/15</b></header>
@@ -1171,6 +1547,36 @@ EXPORT          pending`}</pre>
         <span>{toast}</span>
         <time>{secondLoop === 2 ? sessionDate : "2001/07/17"}　04:17</time>
       </footer>
+
+      {showDeskIntro && (
+        <div className="desk-intro-backdrop">
+          <section className="desk-intro">
+            <WindowBar title={`FIRST SESSION — ${roles[role].code}`} onClose={() => setShowDeskIntro(false)} />
+            <div className="desk-intro-body">
+              <div className="desk-role">
+                <Portrait index={roles[role].index} alt={`${roles[role].name} 身份照片`} />
+                <div><span>你为什么在这里</span><h2>{roles[role].name}</h2><p>{roles[role].task}</p></div>
+              </div>
+              <div className="desk-rules">
+                <article><b>01 / 自由调查</b><p>左侧九个工具可按任意顺序打开。闪烁边框只代表当前建议，不是唯一路线。</p></article>
+                <article><b>02 / 自动归档</b><p>关键操作会把记录钉入右侧案卷。点击“案卷”可查看证据说明与私人任务。</p></article>
+                <article><b>03 / 渐进提示</b><p>卡住时在案卷中逐层展开提示；第一层给方向，第三层才给直接操作。</p></article>
+              </div>
+              <div className="first-lead">
+                <span>建议从一个矛盾开始</span>
+                <h3>{activeLead.title}</h3>
+                <p>{activeLead.why}</p>
+              </div>
+              <div className="desk-intro-actions">
+                <button onClick={() => setShowDeskIntro(false)}>我想自由调查</button>
+                <button className="primary" onClick={() => { setShowDeskIntro(false); setShowEvidence(true); openApp(activeLead.apps[0]); }}>
+                  打开推荐入口：{apps.find((app) => app.id === activeLead.apps[0])?.label} →
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
 
       {viewer && (
         <div className="media-viewer" onClick={() => setViewer(null)}>
