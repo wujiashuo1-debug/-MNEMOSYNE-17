@@ -90,8 +90,10 @@ test("ships the nonlinear investigation systems and project artwork", async () =
   assert.match(guide, /第二次反证与真结局/);
   assert.match(sevenDays, /const days: DayStory\[\]/);
   assert.match(sevenDays, /按住向左行走/);
-  assert.match(sevenDays, /第七日/);
+  assert.match(sevenDays, /第七夜/);
   assert.match(sevenDays, /mnemosyne-seven-days/);
+  assert.match(sevenDays, /xu-cheng-walk-v2\.png/);
+  assert.match(sevenDays, /seven-days-route-final-v2\.png/);
   assert.match(css, /\.corridor-app/);
   assert.match(css, /\.audit-app/);
   assert.match(css, /\.true-ending/);
@@ -115,6 +117,9 @@ test("ships the nonlinear investigation systems and project artwork", async () =
     access(new URL("../public/orientation-lab-2001.png", import.meta.url)),
     access(new URL("../public/cctv-duplicate-witness.png", import.meta.url)),
     access(new URL("../public/seven-days-route.png", import.meta.url)),
+    access(new URL("../public/seven-days-route-mid-v2.png", import.meta.url)),
+    access(new URL("../public/seven-days-route-final-v2.png", import.meta.url)),
+    access(new URL("../public/xu-cheng-walk-v2.png", import.meta.url)),
     access(new URL("../public/og-v2.png", import.meta.url)),
   ]);
 

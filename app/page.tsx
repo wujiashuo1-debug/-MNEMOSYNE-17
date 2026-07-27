@@ -1112,7 +1112,7 @@ export default function Home() {
             >
               {filmComplete ? "挂载身份索引 →" : "录像结束后继续"}
             </button>
-            <a className="seven-day-entry" href={sevenDaysHref}>调阅 B2 七日夜间通行记录 →</a>
+            <a className="seven-day-entry" href={sevenDaysHref}>调阅 B2 七夜通行记录 →</a>
           </aside>
         </section>
       </main>

@@ -92,7 +92,7 @@ export default function GuidePage() {
       </section>
 
       <nav className="manual-index" aria-label="攻略目录">
-        <a href="#seven-days">B2 七日回程</a>
+        <a href="#seven-days">B2 七夜回程</a>
         <a href="#start">开局与角色</a>
         <a href="#surface">表层证据</a>
         <a href="#corridor">七日巡廊</a>
@@ -117,22 +117,22 @@ export default function GuidePage() {
       </section>
 
       <section className="manual-content">
-        <ManualSection id="seven-days" number="00" title="独立篇：B2 七日回程" summary="不需要解题。按住向左键或屏幕左侧，让徐澄把同一条下班路走完七次。">
+        <ManualSection id="seven-days" number="00" title="独立篇：B2 七夜回程" summary="不需要解题。按住向左键或屏幕按钮，让许澄把同一条夜间交接路线走完七次。">
           <div className="manual-copy">
             <h3>操作与推进</h3>
-            <p>电脑端持续按住 ← 或 A；手机端持续按住画面左下角的“向左行走”。叙事字幕出现时人物会停下，读完后继续向左即可。电话、镜子和蓝门不是选择题，也不需要点击。</p>
-            <h3>七日故事</h3>
+            <p>电脑端持续按住 ← 或 A；手机端持续按住底部的“按住行走”。字幕不会强行打断行走，电话、镜子和蓝门也不是选择题。真正的线索是同一地点在不同夜晚发生了什么变化。</p>
+            <h3>七夜故事</h3>
             <ol>
-              <li><b>第一日：</b>档案员徐澄完成 B2 数字化夜班。调任名单声称共有十七人，纸面上却只有十六行。</li>
-              <li><b>第二日：</b>墙钟停在 04:17；徐澄发现自己的签名早在 2001 年就出现过。</li>
-              <li><b>第三日：</b>凸面镜里的倒影比本人晚半步，旧访客簿却记录着相同证件号。</li>
-              <li><b>第四日：</b>停用二十五年的墙上电话响起。来电者知道徐澄幼年被删去的姓名。</li>
-              <li><b>第五日：</b>蓝门后仍是同一条走廊，前方出现另一个正在下班的“徐澄”。</li>
-              <li><b>第六日：</b>访客簿自动补出第十七行；监控同时拍到走廊两端各有一个徐澄。</li>
-              <li><b>第七日：</b>七个夜班坍缩为 2001 年的同一秒。玩家的本次访问被写进第十七份证词。</li>
+              <li><b>第一夜：</b>临时档案员许澄运送最后一箱旧磁带，值班照里却出现一名与她相貌相同的女人。</li>
+              <li><b>第二夜：</b>墙钟停在 04:17；许澄发现自己的签名早在 2001 年就出现过。</li>
+              <li><b>第三夜：</b>凸面镜里的倒影慢了半步，蓝门后出现另一条相同走廊。</li>
+              <li><b>第四夜：</b>停用二十五年的电话响起。来电者说许澄小时候并不叫这个名字。</li>
+              <li><b>第五夜：</b>另一个许澄先一步走过尚未响起的电话，墙内的人形开始跟随她行走。</li>
+              <li><b>第六夜：</b>许澄没有上班，却在客厅看见通往 B2 的电梯；监控同时拍到了两个她。</li>
+              <li><b>第七夜：</b>七个夜班坍缩为 2001 年同一秒，玩家的操作被系统写成第十七号证词。</li>
             </ol>
-            <div className="manual-note important">这一篇与主终端共用世界观，但可以独立游玩。真正的异常不是“徐澄遇见了谁”，而是七天的记忆究竟属于徐澄，还是刚刚操纵他走完路线的人。</div>
-            <p><a href={sevenDaysHref}>进入 B2 七日夜间通行记录 →</a></p>
+            <div className="manual-note important">真正的异常不是“许澄遇见了谁”，而是前六夜是否原本存在。第七夜会说明：玩家刚刚完成的行走，正是系统补写那些记忆的过程。</div>
+            <p><a href={sevenDaysHref}>进入 B2 七夜通行记录 →</a></p>
           </div>
         </ManualSection>
 
@@ -239,7 +239,7 @@ export default function GuidePage() {
       <footer className="manual-footer">
         <div><span>END OF UNSEALED DOCUMENT</span><p>攻略读完了。现在的问题不是你是否知道答案，而是你会替谁承担它。</p></div>
         <div>
-          <a href={sevenDaysHref}>进入七日回程 →</a>
+          <a href={sevenDaysHref}>进入七夜回程 →</a>
           <a href={gameHref}>返回 MNEMOSYNE-17 →</a>
         </div>
       </footer>
