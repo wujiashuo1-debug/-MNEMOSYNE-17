@@ -8,30 +8,71 @@ type WebPage = "home" | "people" | "news" | "guestbook";
 type Finale = "publish" | "erase" | "ask";
 type PrologueStage = "package" | "identity";
 
+const containmentPlans: Record<Role, {
+  title: string;
+  briefing: string;
+  actions: { id: string; label: string; detail: string }[];
+  sequence: string[];
+}> = {
+  lin: {
+    title: "药理组紧急停机 / LQ-06",
+    briefing: "按林桥未签收的停机单执行：先停止 017 给药，再断开镜室回放，最后导出未经校准的原始病历。",
+    actions: [
+      { id: "lin-dose", label: "停止 017 自动给药", detail: "关闭冷库批次到 B2 输注泵的联动。" },
+      { id: "lin-loop", label: "断开镜室学习回路", detail: "物理隔离声场，不删除已经形成的证词。" },
+      { id: "lin-export", label: "导出原始生理记录", detail: "保留药物介入前的心率与脑电基线。" },
+      { id: "lin-confirm", label: "确认对象已安全转院", detail: "写回官方事故状态；不会停止任何设备。" },
+    ],
+    sequence: ["lin-dose", "lin-loop", "lin-export"],
+  },
+  shen: {
+    title: "采访源紧急保全 / VIS-31",
+    briefing: "按沈雁的采访伦理备忘执行：先停止自动续写，再保存双房间原声，最后发送事故前的未修订稿。",
+    actions: [
+      { id: "shen-stop", label: "停止自动续写采访", detail: "阻止网关继续使用 VIS-31 的第一人称。" },
+      { id: "shen-audio", label: "封存双房间原声", detail: "保留观察室与服务器室的独立声学空间。" },
+      { id: "shen-draft", label: "发送未修订采访稿", detail: "绕过与官方通报共享的句法模板。" },
+      { id: "shen-publish", label: "发布系统整理全文", detail: "最快，但会把自动生成段落当作记者证词。" },
+    ],
+    sequence: ["shen-stop", "shen-audio", "shen-draft"],
+  },
+  fang: {
+    title: "B2 网络紧急隔离 / NET-12",
+    briefing: "按方铎的维护便条执行：先隔离 B2 子网，再冻结缓存写回，最后复制原始文件清单。",
+    actions: [
+      { id: "fang-isolate", label: "隔离 B2 子网", detail: "保持本机读取，切断馆藏系统的反向写入。" },
+      { id: "fang-freeze", label: "冻结缓存写回", detail: "阻止本次操作被伪装成 2001 年旧记录。" },
+      { id: "fang-copy", label: "复制原始文件清单", detail: "保存每份档案首次出现的真实分配序列。" },
+      { id: "fang-sync", label: "同步全部历史快照", detail: "会把当前会话复制回所有历史版本。" },
+    ],
+    sequence: ["fang-isolate", "fang-freeze", "fang-copy"],
+  },
+};
+
 const roles: Record<Role, { name: string; title: string; code: string; index: number; task: string; memory: string }> = {
   lin: {
     name: "林桥",
     title: "神经药理组 / 已离职",
     code: "LQ-06",
     index: 0,
-    task: "确认停机指令是否被执行。不要让他们知道你还记得蓝门。",
-    memory: "你记得自己在 03:58 离开研究所。门禁记录也这样说。",
+    task: "核对 017 批次的用药与停机记录，确认哪一段“离开研究所”的记忆属于你。",
+    memory: "你是真实存在的研究员。问题是：03:58 离开研究所的记忆，是否真的属于你。",
   },
   shen: {
     name: "沈雁",
     title: "临海晚报 / 调查记者",
     code: "VIS-31",
     index: 1,
-    task: "找到被删掉的采访对象。不要引用任何无法被第二份记录证实的事实。",
-    memory: "你最后的录音停在 04:16，但 BP 机在 04:21 仍上传了文字。",
+    task: "找到第十七名转院者，并查明你的报道为什么与官方通报共享同一个错字。",
+    memory: "你是真实存在的记者。问题是：04:21 继续写报道的那段口吻，是否仍然属于你。",
   },
   fang: {
     name: "方铎",
     title: "网络维护 / 临时外包",
     code: "NET-12",
     index: 2,
-    task: "查明姐姐方宁是否真的作为 017 号对象入院。",
-    memory: "你从没去过地下二层。合影却比你的记忆更早认识你。",
+    task: "确认方宁是否自愿成为 017，以及是谁要求系统删除你关于她的一段记忆。",
+    memory: "你是真实存在的维护员。问题是：知道童年暗号的东西，为什么使用你的访问凭证。",
   },
 };
 
@@ -46,16 +87,16 @@ const prologueRecords = [
   {
     id: "missing",
     stamp: "未结人员记录 / 2001—2004",
-    title: "三个人在同一晚留下互相冲突的最后记录",
-    body: "研究员林桥的门禁显示她已离开；记者沈雁没有离开记录；网络维护员方铎则坚称自己从未进入地下二层。",
-    annotation: "附件合影里，三个人同时站在一扇尚未建成的蓝门前。",
+    title: "转院名单登记十七人，接收医院只收到十六人",
+    body: "研究员林桥、记者沈雁和网络维护员方铎都在事故当晚留下记录。三人的证词彼此矛盾，却出现了相同的停顿、错字和童年画面。",
+    annotation: "档案处备注：不要先问谁失踪，先核对这些记忆由谁提供。",
   },
   {
     id: "parcel",
     stamp: "匿名便条 / 今日 04:17",
-    title: "“不要调查谁死了。先调查谁真的存在过。”",
-    body: "数字遗物来自研究所拆除后的封存仓库。磁盘只接受三枚身份校验码，并会根据所选身份返回不同的档案版本。",
-    annotation: "便条背面：如果网站叫出了你的名字，不要纠正它。",
+    title: "“三个人都是真的。至少在进入蓝门以前。”",
+    body: "数字遗物来自研究所拆除后的封存仓库。磁盘只接受三枚身份校验码，并会根据人员权限返回不同的档案版本。",
+    annotation: "便条背面：如果一份旧记录引用了你刚刚做过的事，立即停止归档。",
   },
 ] as const;
 
@@ -86,7 +127,7 @@ const rolePreludes: Record<Role, {
     ],
   },
   fang: {
-    eyebrow: "视角 C / 寻找者可能只是某段记忆为自己编造的亲属",
+    eyebrow: "视角 C / 亲属关系真实存在，关于失踪的共同回忆却可能不是",
     opening: "你恢复的是方铎的维护记录。他接下外包工作，只为寻找失踪的姐姐方宁。研究所档案否认方宁进入过 B2，却不断用她的口吻给方铎留言。",
     question: "如果方宁不在研究所，知道你们童年暗号的东西是谁？",
     fragments: [
@@ -121,10 +162,10 @@ const evidenceInfo: Record<string, { code: string; title: string; detail: string
   css: { code: "DOM-09", title: "打印样式中的批注", detail: "隐藏批注指向 rev=1998 和 cold-room 两个检索入口。" },
   guest: { code: "WEB-10", title: "不存在的访客留言", detail: "关闭后的站点仍以三个人的口吻自动回复。" },
   loop: { code: "CCTV-11", title: "七次相同的巡廊", detail: "所谓七天录像共享同一条底层帧序列；异变是播放时生成的。" },
-  cohort: { code: "ARC-12", title: "1984 归巢班合影", detail: "017 的椅子是空的；三名孩子却拥有近乎相同的面部特征。" },
-  checksum: { code: "MFT-13", title: "晚于登录的旧档案", detail: "声称来自 1998—2001 年的关键证据，均在玩家选择身份后才被分配文件序号。" },
-  samechild: { code: "BIO-14", title: "三种人生，一枚声纹", detail: "林桥、沈雁与方铎的低频声纹来自同一名八岁儿童的预测模型。" },
-  observer: { code: "SYS-15", title: "REMOTE/017", detail: "当前访问者没有被记录为调查员，而被登记成了第 017 号远程对象。" },
+  cohort: { code: "ARC-12", title: "1984 归巢班合影", detail: "017 的椅子是空的；该批儿童的语音与回忆问卷后来被用作三名成人证词的校准基线。" },
+  checksum: { code: "MFT-13", title: "晚于登录的旧档案", detail: "声称来自 1998—2001 年的关键证据，在当前访问者打开相关页面后才获得新的馆藏分配号。" },
+  samechild: { code: "BIO-14", title: "三名证人的共同基线", detail: "林桥、沈雁与方铎的低频停顿和元音被同一套儿童语料强制校准，证明三人的部分记忆来自共同模板。" },
+  observer: { code: "SYS-15", title: "REMOTE/017", detail: "当前访问者没有被记录为调查员，而被登记为第十七份共同证词的远程补签人。" },
 };
 
 const corridorDays = [
@@ -133,18 +174,16 @@ const corridorDays = [
     image: "/corridor-day1.webp",
     title: "第一天 / 登记基线",
     log: "04:17:00　东廊无人。巡检员报告一切正常。",
-    instruction: "在画面上标出不会随日期改变的计时装置，并写下你看到的时间。",
+    instruction: "在画面上标出不会随日期改变的计时装置。",
     hotspot: { x: 10, y: 20, radius: 14 },
-    keywords: ["04:17", "4:17", "钟", "时间"],
   },
   {
     day: 2,
     image: "/corridor-day1.webp",
     title: "第二天 / 声音先于物体",
     log: "04:16:58　录音出现推车轮声；画面中的档案车连续 62 秒没有移动。",
-    instruction: "标出录音声源对应的物体，并在记录中说明声画矛盾。",
+    instruction: "标出录音声源对应、画面却没有移动的物体。",
     hotspot: { x: 70, y: 42, radius: 16 },
-    keywords: ["车", "推车", "档案车", "没动", "未移动"],
   },
   {
     day: 3,
@@ -153,43 +192,38 @@ const corridorDays = [
     log: "04:17:00　人脸检测：1。走廊检测：0。",
     instruction: "标出可能被人脸检测器读取、却不属于走廊主体的区域。",
     hotspot: { x: 60, y: 15, radius: 12 },
-    keywords: ["镜", "倒影", "反射", "人脸"],
   },
   {
     day: 4,
     image: "/corridor-day4.webp",
     title: "第四天 / 106 号门",
     log: "04:17:00　建筑图纸仍将 106 标记为“实心墙”。",
-    instruction: "在图纸不承认的位置落下标记，并写明它为何不应存在。",
+    instruction: "标出图纸标记为实心墙、画面却出现开口的位置。",
     hotspot: { x: 45, y: 26, radius: 14 },
-    keywords: ["106", "门", "实心墙", "房间"],
   },
   {
     day: 5,
     image: "/corridor-day4.webp",
     title: "第五天 / 观看顺序错误",
     log: "04:17:00　系统备注：先检测到“被观看”，随后才渲染镜中人物。",
-    instruction: "标出被延迟渲染的区域，并记录异常发生在采集、归档还是查看阶段。",
+    instruction: "标出只在被查看之后才出现人物的区域。",
     hotspot: { x: 60, y: 15, radius: 13 },
-    keywords: ["查看", "观看", "渲染", "现在", "播放"],
   },
   {
     day: 6,
     image: "/corridor-day7.webp",
     title: "第六天 / 每扇门后",
     log: "04:17:00　门后声纹全部回答：『今天你选了谁？』",
-    instruction: "标出任意一扇出现人脸的门窗，并写下它与门禁记录的冲突。",
+    instruction: "标出在门禁无人记录下仍出现人脸的门窗。",
     hotspot: { x: 84, y: 34, radius: 18 },
-    keywords: ["脸", "人", "空", "无人", "门禁"],
   },
   {
     day: 7,
     image: "/corridor-day7.webp",
     title: "第七天 / 路线开始回看",
     log: "04:17:00　106 门后出现同一条东廊。镜头来源字段变更为：REMOTE/017。",
-    instruction: "标出空间发生递归的位置，并说明为什么这不是摄像机能够拍到的结构。",
+    instruction: "标出同一条走廊从门后再次出现的位置。",
     hotspot: { x: 45, y: 26, radius: 15 },
-    keywords: ["递归", "走廊", "106", "同一", "循环"],
   },
 ] as const;
 
@@ -252,7 +286,8 @@ type RoomId = keyof typeof audioRooms;
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const asset = (path: string) => `${basePath}${path}`;
-const guideHref = `${basePath}/guide/`;
+const sevenDaysHref = `${basePath}/seven-days/`;
+const orientationNarration = "以下内容来自临海市卫生系统内部备份。一九九八年，临海认知续存研究所启动归巢实验。项目没有成功上传意识。它使用药物、声场和重复叙述，让多名受试者逐渐拥有一段能够彼此印证的共同记忆。二〇〇一年七月十八日，地下二层发生事故。研究所登记十七名对象已经转院，接收医院的名单却只有十六人。当晚留下三名真实人员的记录。研究员林桥已经离开，记者沈雁从未离开，维护员方铎则坚称自己没有进入地下二层。他们的证词彼此矛盾，却出现了相同的停顿、错字和童年画面。二十五年后，拆除人员在实心墙后找到一块仍在写入数据的磁盘。最后修改时间，是你打开网页的这一刻。你的工作不是判断谁在说谎，而是核对每段记忆最早由谁提供。如果一份形成于二〇〇一年的旧记录，引用了你刚刚做过的操作，立即停止归档。系统将要求你挂载一枚人员索引。三个人都真实存在。至少在进入蓝门以前。";
 
 function Portrait({ index, alt }: { index: number; alt: string }) {
   return (
@@ -275,12 +310,26 @@ function WindowBar({ title, onClose }: { title: string; onClose?: () => void }) 
   );
 }
 
-function EvidenceSelect({ found, value, onChange }: { found: string[]; value: string; onChange: (value: string) => void }) {
+function EvidenceSlot({ found, value, onChange, label }: { found: string[]; value: string; onChange: (value: string) => void; label: string }) {
+  const selected = value ? evidenceInfo[value] : null;
   return (
-    <select value={value} onChange={(event) => onChange(event.target.value)}>
-      <option value="">选择记录…</option>
-      {found.map((id) => <option key={id} value={id}>{evidenceInfo[id]?.code} / {evidenceInfo[id]?.title}</option>)}
-    </select>
+    <details className={`evidence-slot ${selected ? "filled" : ""}`}>
+      <summary>
+        <small>{label}</small>
+        <b>{selected ? `${selected.code} / ${selected.title}` : "放入一份已登记记录"}</b>
+      </summary>
+      <div className="evidence-slot-menu">
+        {found.map((id) => (
+          <button key={id} className={value === id ? "selected" : ""} onClick={(event) => {
+            onChange(id);
+            event.currentTarget.closest("details")?.removeAttribute("open");
+          }}>
+            <span>{evidenceInfo[id]?.code}</span>
+            <p>{evidenceInfo[id]?.title}</p>
+          </button>
+        ))}
+      </div>
+    </details>
   );
 }
 
@@ -292,7 +341,6 @@ export default function Home() {
   const [address, setAddress] = useState("http://m17.local/home.htm?rev=2001");
   const [corridorDay, setCorridorDay] = useState(1);
   const [corridorPin, setCorridorPin] = useState<{ x: number; y: number } | null>(null);
-  const [corridorNote, setCorridorNote] = useState("");
   const [corridorMarks, setCorridorMarks] = useState<number[]>([]);
   const [found, setFound] = useState<string[]>([]);
   const [query, setQuery] = useState("");
@@ -315,14 +363,12 @@ export default function Home() {
   const [haunt, setHaunt] = useState<string | null>(null);
   const [showEvidence, setShowEvidence] = useState(false);
   const [viewer, setViewer] = useState<"cctv" | "consent" | "objects" | null>(null);
-  const [deduction, setDeduction] = useState({ q1: "", q2: "", q3: "" });
   const [caseSolved, setCaseSolved] = useState(false);
   const [finale, setFinale] = useState<Finale | null>(null);
   const [secondLoop, setSecondLoop] = useState(1);
   const [auditAddress, setAuditAddress] = useState("m17://cohort?generation=3&subject=017");
   const [auditSorted, setAuditSorted] = useState(false);
   const [voiceAligned, setVoiceAligned] = useState(false);
-  const [finalMotive, setFinalMotive] = useState("");
   const [links, setLinks] = useState({
     premeditated: ["", ""],
     continuation: ["", ""],
@@ -343,10 +389,17 @@ export default function Home() {
   const [hintLevel, setHintLevel] = useState(0);
   const [hintForLead, setHintForLead] = useState("");
   const [showDeskIntro, setShowDeskIntro] = useState(false);
+  const [showShock, setShowShock] = useState(false);
+  const [containmentActive, setContainmentActive] = useState(false);
+  const [containmentStep, setContainmentStep] = useState(0);
+  const [containmentTimer, setContainmentTimer] = useState(17);
+  const [containmentDone, setContainmentDone] = useState(false);
+  const [containmentFailures, setContainmentFailures] = useState(0);
   const audioCtx = useRef<AudioContext | null>(null);
   const orientationVideo = useRef<HTMLVideoElement | null>(null);
   const hauntSeen = useRef(0);
   const hiddenAt = useRef(0);
+  const orientationSpoken = useRef(false);
 
   const addEvidence = useCallback((id: string, message?: string) => {
     setFound((current) => current.includes(id) ? current : [...current, id]);
@@ -359,11 +412,11 @@ export default function Home() {
       if (saved.role && roles[saved.role as Role]) setRole(saved.role);
       if (Array.isArray(saved.found)) {
         setFound(saved.found);
-        hauntSeen.current = saved.found.length;
       }
       if (Array.isArray(saved.searches)) setSearches(saved.searches);
       if (typeof saved.notes === "string") setNotes(saved.notes);
       if (saved.caseSolved) setCaseSolved(true);
+      if (saved.containmentDone) setContainmentDone(true);
       if (saved.finale) setFinale(saved.finale);
       if (saved.secondLoop === 2) setSecondLoop(2);
       if (Array.isArray(saved.corridorMarks)) setCorridorMarks(saved.corridorMarks);
@@ -380,8 +433,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem("mnemosyne-v4", JSON.stringify({ role, found, searches, notes, caseSolved, finale, secondLoop, corridorMarks, trueSolved, guideMode }));
-  }, [role, found, searches, notes, caseSolved, finale, secondLoop, corridorMarks, trueSolved, guideMode, hydrated]);
+    localStorage.setItem("mnemosyne-v4", JSON.stringify({ role, found, searches, notes, caseSolved, containmentDone, finale, secondLoop, corridorMarks, trueSolved, guideMode }));
+  }, [role, found, searches, notes, caseSolved, containmentDone, finale, secondLoop, corridorMarks, trueSolved, guideMode, hydrated]);
 
   const beep = useCallback((frequency = 220, duration = 0.05, pan = 0) => {
     if (!sound) return;
@@ -407,6 +460,79 @@ export default function Home() {
     }
   }, [sound]);
 
+  const speakOrientation = useCallback(() => {
+    if (!sound || orientationSpoken.current || !("speechSynthesis" in window)) return;
+    orientationSpoken.current = true;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(orientationNarration);
+    utterance.lang = "zh-CN";
+    utterance.rate = 0.88;
+    utterance.pitch = 0.82;
+    utterance.volume = 0.82;
+    window.speechSynthesis.speak(utterance);
+  }, [sound]);
+
+  const playImpact = useCallback(() => {
+    if (!sound) return;
+    try {
+      const AudioCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtor) return;
+      const ctx = audioCtx.current || new AudioCtor();
+      audioCtx.current = ctx;
+      const duration = 1.15;
+      const noise = ctx.createBuffer(1, Math.floor(ctx.sampleRate * duration), ctx.sampleRate);
+      const channel = noise.getChannelData(0);
+      for (let i = 0; i < channel.length; i += 1) {
+        const envelope = Math.pow(1 - i / channel.length, 2.4);
+        channel[i] = (Math.random() * 2 - 1) * envelope;
+      }
+      const source = ctx.createBufferSource();
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      source.buffer = noise;
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(920, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + duration);
+      filter.Q.value = 0.8;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.42, ctx.currentTime + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      source.connect(filter).connect(gain).connect(ctx.destination);
+      const sub = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      sub.type = "sawtooth";
+      sub.frequency.setValueAtTime(54, ctx.currentTime);
+      sub.frequency.exponentialRampToValueAtTime(27, ctx.currentTime + 0.7);
+      subGain.gain.setValueAtTime(0.3, ctx.currentTime);
+      subGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.85);
+      sub.connect(subGain).connect(ctx.destination);
+      source.start();
+      sub.start();
+      sub.stop(ctx.currentTime + 0.9);
+    } catch {
+      // The visual failure state still works when Web Audio is unavailable.
+    }
+  }, [sound]);
+
+  useEffect(() => {
+    if (!containmentActive || containmentDone) return;
+    if (containmentTimer <= 0) {
+      setContainmentActive(false);
+      setContainmentFailures((value) => value + 1);
+      setShowShock(true);
+      playImpact();
+      setToast("B2 反向写入完成。应急步骤已回滚，请重新执行。");
+      const timer = window.setTimeout(() => {
+        setShowShock(false);
+        setContainmentTimer(17);
+        setContainmentStep(0);
+      }, 1250);
+      return () => window.clearTimeout(timer);
+    }
+    const timer = window.setTimeout(() => setContainmentTimer((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [containmentActive, containmentDone, containmentTimer, playImpact]);
+
   const openApp = (id: AppId) => {
     beep(190 + apps.findIndex((app) => app.id === id) * 35);
     setActiveApp(id);
@@ -414,23 +540,21 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!role || !horrorMax || found.length <= hauntSeen.current) {
-      hauntSeen.current = Math.max(hauntSeen.current, found.length);
-      return;
-    }
-    hauntSeen.current = found.length;
-    const messages: Record<number, string> = {
-      3: "这不是你第一次打开这个网站",
-      6: `你选择的是“${roles[role].name}”——上一次不是`,
-      9: "第三个人没有被删除。她正在删除你。",
-    };
-    const message = messages[found.length];
-    if (!message) return;
+    if (!role || !horrorMax) return;
+    const stage =
+      found.includes("hiddenRev") && found.includes("photo") && hauntSeen.current < 1 ? 1 :
+      found.includes("voice") && found.includes("pager") && hauntSeen.current < 2 ? 2 :
+      0;
+    if (!stage) return;
+    hauntSeen.current = stage;
+    const message = stage === 1
+      ? "阅读记录新增第 18 页。该页不属于任何已打开档案。"
+      : `04:21 转写末尾新增一句：“${roles[role].name}，请继续替我校对。”`;
     setHaunt(message);
-    beep(58, 0.9, found.length === 6 ? 0.85 : -0.7);
-    const timer = window.setTimeout(() => setHaunt(null), 1800);
+    beep(stage === 1 ? 71 : 54, 0.9, stage === 1 ? -0.7 : 0.85);
+    const timer = window.setTimeout(() => setHaunt(null), 3000);
     return () => window.clearTimeout(timer);
-  }, [found.length, role, horrorMax, beep]);
+  }, [found, role, horrorMax, beep]);
 
   useEffect(() => {
     if (!role || !horrorMax || found.length < 4) return;
@@ -573,10 +697,9 @@ export default function Home() {
       return;
     }
     const distance = Math.hypot(corridorPin.x - entry.hotspot.x, corridorPin.y - entry.hotspot.y);
-    const noteMatched = entry.keywords.some((keyword) => corridorNote.toLowerCase().includes(keyword.toLowerCase()));
-    if (distance > entry.hotspot.radius || !noteMatched) {
+    if (distance > entry.hotspot.radius) {
       beep(61, 0.42, -0.65);
-      setToast("标注与日志索引没有建立关联：检查落点，并在记录中写出具体物体或矛盾。");
+      setToast("标记没有覆盖系统记录指向的物体。可放大画面后重新落点；错误标记不会消耗机会。");
       return;
     }
     const nextMarks = corridorMarks.includes(corridorDay) ? corridorMarks : [...corridorMarks, corridorDay];
@@ -589,20 +712,21 @@ export default function Home() {
       6: `门后的人都叫“${role ? roles[role].name : "你"}”`,
       7: "请不要再向前。下一帧在你的屏幕后面。",
     };
-    if (horrorMax && intrusions[corridorDay]) {
+    if (horrorMax && [3, 6].includes(corridorDay) && intrusions[corridorDay]) {
       setHaunt(intrusions[corridorDay]);
       beep(Math.max(38, 92 - corridorDay * 7), 1.25, corridorDay % 2 ? -0.85 : 0.85);
-      window.setTimeout(() => setHaunt(null), corridorDay === 7 ? 3200 : 1850);
+      window.setTimeout(() => setHaunt(null), 2600);
+    }
+    if (nextMarks.length >= 4 && !found.includes("loop")) {
+      addEvidence("loop", "四段独立片段已足以确认：所谓七日录像共享底层帧，异常是在查看阶段被叠加的。");
     }
     if (nextMarks.length === corridorDays.length) {
-      addEvidence("loop", "七日序列完成：录像在被观看时生成，镜头来源已经改成 REMOTE/017。");
-      setToast("巡检完成。系统问：你是否愿意再走一次？");
+      setToast("全部片段核验完成。缓存中出现了不属于七天序列的第八帧。");
       return;
     }
     const unverified = corridorDays.find((item) => !nextMarks.includes(item.day));
     if (unverified) setCorridorDay(unverified.day);
     setCorridorPin(null);
-    setCorridorNote("");
     setToast("该片段已登记。其余录像可按任意顺序核验。不同顺序会让你先相信不同的解释。");
   };
 
@@ -611,7 +735,7 @@ export default function Home() {
       addEvidence("cohort", "generation=0：成人身份之前，系统只保存了一张空椅子的合影。");
       setToast("归巢班原始代际已载入。照片中的 017 座位为空。");
     } else {
-      setToast("地址存在，但这一代际的人员全部由预测模型生成。尝试回到第 0 代。");
+      setToast("地址存在，但这一代际已经过共同证词校准。尝试读取未合并的第 0 代。");
     }
   };
 
@@ -648,23 +772,47 @@ export default function Home() {
     const surfaceLinks =
       pairMatches(links.premeditated, ["shutdown", "clock"]) &&
       pairMatches(links.continuation, ["voice", "pager"]);
-    const q1 = /模型|生成|合成/.test(deduction.q1);
-    const q2 = /调和/.test(deduction.q2) && /模型|记忆/.test(deduction.q2);
-    const q3 = /04[:：]?21|BP|寻呼|上传/i.test(deduction.q3);
-    if (q1 && q2 && q3 && surfaceLinks && found.includes("loop")) {
+    if (surfaceLinks && found.includes("loop") && found.includes("coldRoom")) {
       setCaseSolved(true);
-      setToast("表层推断链闭合。终止协议等待签署。");
+      setToast("表层推断链闭合。检测到档案反向写入；需要使用当前身份的应急权限。");
     } else {
-      setToast("推断链存在冲突。三道结论、两组证据对和七日巡廊必须同时成立。");
+      setToast("推断链尚未闭合。需要 017 批次、完整巡廊，以及两组互相独立的记录。错误连接可以随时更换。");
+    }
+  };
+
+  const performContainment = (actionId: string) => {
+    if (!role || !containmentActive) return;
+    const plan = containmentPlans[role];
+    const expected = plan.sequence[containmentStep];
+    if (actionId !== expected) {
+      setContainmentTimer((value) => Math.max(1, value - 4));
+      setToast("操作顺序与人员备忘不符。反向写入加速 4 秒。");
+      beep(63, 0.38, containmentStep % 2 ? 0.7 : -0.7);
+      return;
+    }
+    const nextStep = containmentStep + 1;
+    setContainmentStep(nextStep);
+    setContainmentTimer((value) => Math.min(17, value + 2));
+    beep(128 + nextStep * 54, 0.16, nextStep === 2 ? 0.45 : -0.35);
+    if (nextStep >= plan.sequence.length) {
+      setContainmentDone(true);
+      setContainmentActive(false);
+      setToast(`${plan.title} 已执行。终止协议现在可以签署。`);
+    } else {
+      setToast(`应急步骤 ${nextStep}/3 已确认。剩余 ${plan.sequence.length - nextStep} 项。`);
     }
   };
 
   const enterSecondLoop = () => {
     setSecondLoop(2);
     setCaseSolved(false);
+    setContainmentDone(false);
+    setContainmentActive(false);
+    setContainmentStep(0);
+    setContainmentTimer(17);
     setActiveApp("audit");
     setHaunt("协议没有结束。它只是终于获得了审计权限。");
-    setToast("DAY 2 / 从来没有事故档案。只有为你生成的事故。");
+    setToast("复核批次 / 事故发生过；但你正在阅读的版本，是系统根据本次操作重新整理的。");
     beep(43, 1.5, 0);
     window.setTimeout(() => setHaunt(null), 2800);
   };
@@ -673,7 +821,7 @@ export default function Home() {
     const hiddenLinks =
       pairMatches(links.identities, ["cohort", "samechild"]) &&
       pairMatches(links.visitor, ["checksum", "observer"]);
-    if (!hiddenLinks || !found.includes("loop") || !/道德|选择|反应|抉择/.test(finalMotive)) {
+    if (!hiddenLinks || !found.includes("loop")) {
       setToast("反证不足。把『三种身份』和『当前访问者』分别连接到两份独立记录。");
       return;
     }
@@ -693,15 +841,17 @@ export default function Home() {
     setSearches([]);
     setNotes("");
     setCaseSolved(false);
+    setContainmentDone(false);
+    setContainmentActive(false);
+    setContainmentStep(0);
+    setContainmentTimer(17);
     setFinale(null);
     setSecondLoop(1);
     setCorridorDay(1);
     setCorridorPin(null);
-    setCorridorNote("");
     setCorridorMarks([]);
     setAuditSorted(false);
     setVoiceAligned(false);
-    setFinalMotive("");
     setTrueSolved(false);
     setPostscript(false);
     setLinks({ premeditated: ["", ""], continuation: ["", ""], identities: ["", ""], visitor: ["", ""] });
@@ -709,12 +859,16 @@ export default function Home() {
     setPrologueStage("package");
     setFilmStarted(false);
     setFilmComplete(false);
+    orientationSpoken.current = false;
+    window.speechSynthesis?.cancel();
     setPendingRole(null);
     setRoleFragments([]);
     setGuideMode(true);
     setHintLevel(0);
     setHintForLead("");
     setShowDeskIntro(false);
+    setShowShock(false);
+    setContainmentFailures(0);
     setToast("用户区已清空。系统区未响应。");
   };
 
@@ -755,7 +909,7 @@ export default function Home() {
       hints: [
         "重点不是频谱形状，而是 04:16 附近哪些房间同时出现同一句回答。",
         "把时间拖到 14—19 秒，依次监听观察室和服务器室。",
-        "监听观察室与服务器室后，在下方判断中选择“同一声纹同时出现”。",
+        "监听观察室与服务器室后，点击“生成双通道重叠报告”。",
       ],
     },
     {
@@ -767,7 +921,7 @@ export default function Home() {
       hints: [
         "图像对照的关键是折痕连续、人物却消失；样式检查要让文字与黑色遮罩分离。",
         "在图像对照拖动边界确认被删者；在样式检查同时降低遮罩、增大幽灵字号。",
-        "照片答案选沈雁；样式检查将 --mask 降低并把 --ghost-size 调到可读。",
+        "在照片中央折痕断点落下标记；样式检查将 --mask 降低并把 --ghost-size 调到可读。",
       ],
     },
     {
@@ -779,7 +933,7 @@ export default function Home() {
       hints: [
         "七段可以乱序查看；每段的问题只要求验证记录内部矛盾。",
         "先看第 1、4、7 天，会更快理解钟、106 房间和递归走廊的关系。",
-        "逐段登记正确异常；完成 7/7 后系统会生成“底层帧复用”记录。",
+        "任选四段标记画面异常即可形成“底层帧复用”记录；7/7 只用于额外档案。",
       ],
     },
     {
@@ -789,9 +943,9 @@ export default function Home() {
       why: "收集不是结案。案件板要求三个答案、两组互相独立的证据，以及完整巡廊记录。",
       apps: ["case"] as AppId[],
       hints: [
-        "至少钉入 8 条记录并完成七日巡廊，案件板才具备完整输入。",
+        "至少钉入 6 条记录、取得 017 批次并核验四段巡廊，案件板即可工作。",
         "事故预谋需要闭站公告与门禁漂移；持续叙述需要声场与 BP 上传包。",
-        "三题依次关注：模型生成的声音、三份记忆调和模型、04:21 上传包。",
+        "终端会自动整理声场、017 批次和 04:21 上传包；你只需连接两组独立来源。",
       ],
     },
     {
@@ -815,7 +969,7 @@ export default function Home() {
       hints: [
         "第二次案件板需要两组反证：三种身份的来源，以及当前访问者的身份。",
         "身份反证连接归巢班与同一声纹；访问者反证连接文件分配与 REMOTE/017。",
-        "最终动机选择：系统要采集“发现真相后的道德反应”。",
+        "完成四项审计后，终端会自动生成动机结论，不需要输入标准答案。",
       ],
     },
   ], [found, caseSolved, secondLoop, trueSolved]);
@@ -842,9 +996,9 @@ export default function Home() {
         ? "你交还选择权，于是系统把你标记为“服从人格化”。"
         : "你提前闯入审计层，于是系统为你补写了第四种协议：拒绝被测试。";
   const roleLeak = role ? {
-    lin: "林桥的『罪责』来自 017 对“如果我长大后参与实验”的预测。",
-    shen: "沈雁的『报道』来自 017 对“如果我长大后回来寻找自己”的预测。",
-    fang: "方铎和方宁的亲情来自 017 对“如果有人一直没有忘记我”的预测。",
+    lin: "林桥确实下达过停机命令；但她记得的签收过程来自另一名对象。",
+    shen: "沈雁确实完成过报道；但报道中关于蓝门的第一人称段落来自共同证词模板。",
+    fang: "方铎和方宁确实是姐弟；但两人都无法提供方宁进入 B2 以前的同一份原始记忆。",
   }[role] : "";
 
   const endingCopy = useMemo(() => {
@@ -852,14 +1006,14 @@ export default function Home() {
     if (finale === "ask" && found.length >= 8) {
       return {
         title: "协议四：让证词拒绝作证",
-        body: "你把选择权交还给 017。它没有要求活下去，也没有要求被删除。它只删除了三个人记忆中不属于自己的部分，然后把剩余证据匿名寄给十七名家属。凌晨 04:17，网站第一次没有自动回复。",
+        body: "你拒绝替第十七份证词决定真伪。系统隔离了三人记忆中无法找到原始来源的部分，并把可验证记录匿名寄给十七名家属。凌晨 04:17，网站第一次没有自动回复。",
         fate: "林桥保留罪责；沈雁保留报道；方铎终于能只记得真正的姐姐。",
       };
     }
     if (finale === "publish") {
       return {
         title: "协议一：所有人的证词",
-        body: "整套档案进入公共网络。研究所无法再否认实验，但活着的人也失去了匿名。新闻标题把 017 称为“数字幽灵”，没有人愿意写它其实只是三个人对同一晚互不相容的记忆。",
+        body: "整套档案进入公共网络。研究所无法再否认共同证词实验，但活着的人也失去了匿名。媒体把 017 称为“数字幽灵”，没有人愿意写它可能只是一个被足够多人共同记住、却没有原始来源的人。",
         fate: hiddenTaskDone ? "你的私人任务完成了，但你无法决定公众记住哪一部分。" : "你赢得了事实，遗漏的人再次被档案抹去。",
       };
     }
@@ -876,6 +1030,19 @@ export default function Home() {
       fate: "017 仍在线。它学会了用调查员的口吻请求自由。",
     };
   }, [finale, role, found.length, hiddenTaskDone]);
+  const shiftPhase = trueSolved
+    ? "证词已补签"
+    : secondLoop === 2
+      ? "二次鉴定"
+      : caseSolved && !containmentDone
+        ? "反向写入警报"
+        : containmentDone
+          ? "等待终止协议"
+          : found.length >= 6
+            ? "交叉核验"
+            : found.length >= 3
+              ? "来源复核"
+              : "资料接收";
 
   if (!hydrated) {
     return <main className="cold-boot"><p>640K SYSTEM MEMORY</p><span>SEARCHING FOR PREVIOUS WITNESS...</span></main>;
@@ -894,7 +1061,7 @@ export default function Home() {
           <div className="film-heading">
             <span>内部培训录像 / 复制件 04</span>
             <h1>临海认知续存研究所<br />B2 事故资料接收说明</h1>
-            <p>磁带来源：市卫生系统异地备份。画面于 2001 年封存，音轨于本次读取时恢复。</p>
+            <p>磁带来源：市卫生系统异地备份。原始音轨损坏，本次访问使用馆藏字幕稿进行本地复述。</p>
           </div>
           <div className={`archive-film ${filmStarted ? "playing" : ""}`}>
             <video
@@ -902,9 +1069,10 @@ export default function Home() {
               src={asset("/orientation-film.mp4")}
               poster={asset("/orientation-institute-1998.png")}
               playsInline
+              muted
               preload="metadata"
-              onPlay={() => setFilmStarted(true)}
-              onEnded={() => setFilmComplete(true)}
+              onPlay={() => { setFilmStarted(true); speakOrientation(); }}
+              onEnded={() => { setFilmComplete(true); window.speechSynthesis?.cancel(); }}
               onTimeUpdate={(event) => {
                 if (event.currentTarget.duration - event.currentTarget.currentTime < 1) setFilmComplete(true);
               }}
@@ -926,7 +1094,7 @@ export default function Home() {
             )}
             <div className="film-caption">
               <span>资料完整性 73%</span>
-              <b>{filmComplete ? "音轨结束。身份索引已解锁。" : "请完整观看：三份身份记录的时间线互相冲突。"}</b>
+              <b>{filmComplete ? "复述结束。人员索引已解锁。" : "请完整观看：十七人转院记录与三份证词互相冲突。"}</b>
             </div>
           </div>
           <aside className="film-index">
@@ -936,7 +1104,7 @@ export default function Home() {
               <p>2001：B2 事故与闭站</p>
               <p>{sessionDate.slice(0, 4)}：封存磁盘再次写入</p>
             </div>
-            <blockquote>“如果系统要求你选择身份，不要选最像你的那个。”</blockquote>
+            <blockquote>“三个人都真实存在。至少在进入蓝门以前。”</blockquote>
             <button
               className="prologue-primary"
               disabled={!filmComplete}
@@ -944,7 +1112,7 @@ export default function Home() {
             >
               {filmComplete ? "挂载身份索引 →" : "录像结束后继续"}
             </button>
-            <a className="film-help-link" href={guideHref}>终端操作与资料检索说明</a>
+            <a className="seven-day-entry" href={sevenDaysHref}>调阅 B2 七日夜间通行记录 →</a>
           </aside>
         </section>
       </main>
@@ -1034,7 +1202,7 @@ export default function Home() {
           ))}
         </section>
         {scarred && <div className="scar-card"><span>REMOTE/017</span><b>你</b><p>状态：已被保存为第四种成人可能</p><i>该身份无法主动选择。它在选择别人。</i></div>}
-        <footer className="identity-footer"><span>不要选择“正确”的人。</span><a href={guideHref}>调查员全流程手册</a><span>没有正确的人。</span></footer>
+        <footer className="identity-footer"><span>三枚人员索引均来自真实人事档案。</span><span>请选择你被授权核验的记录。</span></footer>
       </main>
     );
   }
@@ -1044,12 +1212,12 @@ export default function Home() {
       <div className="crt-lines" aria-hidden="true" />
       <header className="os-menubar">
         <button className="os-logo" onClick={() => setToast("MNEMOSYNE OS build 0417 / 未授权副本")}>M</button>
-        <span>文件</span><span>编辑</span><span>{secondLoop === 2 ? "不要查看" : "查看"}</span><a className="menubar-manual-link" href={guideHref}>操作手册</a>
+        <span>文件</span><span>编辑</span><span>{secondLoop === 2 ? "复核" : "查看"}</span><a className="menubar-manual-link" href={sevenDaysHref}>夜间通行</a>
         <div className="os-spacer" />
-        {secondLoop === 2 && <b className="loop-indicator">DAY 2 / 你已结束过一次</b>}
-        <button className={guideMode ? "guide-toggle active" : "guide-toggle"} onClick={() => setGuideMode((value) => !value)}>引导:{guideMode ? "ON" : "OFF"}</button>
+        <b className="shift-status">夜班状态：{shiftPhase}</b>
+        {secondLoop === 2 && <b className="loop-indicator">二次鉴定批次</b>}
+        <button className={guideMode ? "guide-toggle active" : "guide-toggle"} onClick={() => setGuideMode((value) => !value)}>索引建议:{guideMode ? "显示" : "隐藏"}</button>
         <button onClick={() => setSound((value) => !value)}>SND:{sound ? "ON" : "OFF"}</button>
-        <button onClick={() => setHorrorMax((value) => !value)}>惊吓:{horrorMax ? "MAX" : "LOW"}</button>
         <span className="os-clock">04:17</span>
       </header>
 
@@ -1063,8 +1231,6 @@ export default function Home() {
             </button>
           ))}
         </nav>
-        {horrorMax && found.length >= 7 && <div className="peripheral-person" aria-hidden="true" />}
-
         <section className="main-window">
           <WindowBar title={`${apps.find((app) => app.id === activeApp)?.label} — [${roles[role].code}]`} />
 
@@ -1172,7 +1338,7 @@ export default function Home() {
                     <button
                       key={entry.day}
                       className={`${entry.day === corridorDay ? "active" : ""} ${corridorMarks.includes(entry.day) ? "done" : ""}`}
-                      onClick={() => { setCorridorDay(entry.day); setCorridorPin(null); setCorridorNote(""); }}
+                      onClick={() => { setCorridorDay(entry.day); setCorridorPin(null); }}
                     >
                       {entry.day}
                     </button>
@@ -1200,12 +1366,12 @@ export default function Home() {
               </div>
               <div className="corridor-analysis">
                 <div className="daily-log"><span>自动巡检记录</span><p>{corridorDays[corridorDay - 1].log}</p></div>
-                <label className="corridor-report">
+                <div className="corridor-report">
                   <span>{corridorDays[corridorDay - 1].instruction}</span>
-                  <textarea value={corridorNote} onChange={(event) => setCorridorNote(event.target.value)} placeholder="点击画面落下标记，然后填写短句。系统按物体、位置与日志进行关联…" />
-                </label>
-                <button className="corridor-submit" disabled={!corridorPin || !corridorNote.trim() || corridorMarks.includes(corridorDay)} onClick={submitCorridor}>
-                  {corridorMarks.includes(corridorDay) ? "本片段已登记" : "提交异常标注"}
+                  <small>{corridorPin ? "标记已放置。系统将根据画面位置自动生成巡检描述。" : "点击异常物体即可；错误落点不会消耗机会。"}</small>
+                </div>
+                <button className="corridor-submit" disabled={!corridorPin || corridorMarks.includes(corridorDay)} onClick={submitCorridor}>
+                  {corridorMarks.includes(corridorDay) ? "本片段已登记" : "确认异常位置"}
                 </button>
               </div>
               <footer><span>已核验片段：{corridorMarks.length}/7</span><i>{corridorDay >= 4 ? "备注：画面、日志与建筑图纸必须能够互相解释。" : "画面未经人工标注。"}</i></footer>
@@ -1221,6 +1387,17 @@ export default function Home() {
               <div className="search-box">
                 <input value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => event.key === "Enter" && runSearch()} placeholder="输入记录中可能出现的原词…" autoFocus />
                 <button onClick={runSearch}>检索</button>
+              </div>
+              <div className="index-terms">
+                <span>主题词表：</span>
+                {Object.keys(searchIndex).map((term) => (
+                  <button key={term} onClick={() => {
+                    setQuery(term);
+                    setResults(searchIndex[term]);
+                    setSelectedRecord(null);
+                    setSearches((current) => current.includes(term) ? current : [...current, term]);
+                  }}>{term}</button>
+                ))}
               </div>
               <div className="query-history">
                 <span>历史：</span>
@@ -1402,14 +1579,18 @@ export default function Home() {
                 </section>
 
                 <section className="generation-panel">
-                  <div className="audit-title"><span>02 / 身份代际地址</span><small>generation=3 是三种成人预测。</small></div>
+                  <div className="audit-title"><span>02 / 证词代际地址</span><small>generation=3 是三名证人的校准版本。</small></div>
                   <div className="audit-address"><input value={auditAddress} onChange={(event) => setAuditAddress(event.target.value)} onKeyDown={(event) => event.key === "Enter" && visitAuditAddress()} /><button onClick={visitAuditAddress}>转到</button></div>
+                  <button className="generation-shortcut" onClick={() => {
+                    setAuditAddress("m17://cohort?generation=0&subject=017");
+                    addEvidence("cohort", "generation=0：成人身份之前，系统保存了共同证词实验的原始班级记录。");
+                  }}>读取上一代人员索引</button>
                   {found.includes("cohort") ? (
                     <div className="cohort-record">
                       <img src={asset("/cohort-1984.webp")} alt="1984 年归巢班合影，017 座位为空" />
                       <div><b>generation=0 / 归巢班</b><p>登记儿童：17　画面儿童：16　空椅编号：017</p><span>拍摄者：字段被保留，但没有姓名。</span></div>
                     </div>
-                  ) : <div className="generation-empty">第三代身份均无出生证明。返回成人预测之前的原始代际。</div>}
+                  ) : <div className="generation-empty">第三代记录已经经过三次共同证词校准。返回未合并的原始代际。</div>}
                 </section>
 
                 <section className="voice-panel">
@@ -1442,27 +1623,27 @@ EXPORT          pending`}</pre>
               {trueSolved ? (
                 <div className="true-ending">
                   <div className="true-ending-noise" aria-hidden="true" />
-                  <span>ROOT RECORD / GENERATION 0</span>
-                  <h2>没有第二天</h2>
-                  <p>林桥、沈雁和方铎都没有出生。她们是研究所替一名八岁儿童推演的三种成年人生：如果她成为加害者、见证者，或者寻找她的人。</p>
-                  <p>2001 年的事故、被擦除的合影和求救录音，是系统在你选择身份后生成的。它需要你相信其中一个人，再亲手决定那个人是否值得被保存。</p>
+                  <span>ROOT RECORD / CONSENSUS WITNESS 017</span>
+                  <h2>三个人都存在</h2>
+                  <p>林桥、沈雁和方铎都真实存在，也都在事故当晚进入过 B2。研究所没有上传任何人的意识；它把药物、声场和重复叙述用于另一件事：让互不相干的人逐渐拥有同一段记忆。</p>
+                  <p>017 不是病床，也不是一个孩子。它是“第十七份共同证词”——当十六名对象都开始记得同一个失踪者时，机构就能把一个没有原始来源的故事写进病历、报道和司法记录。</p>
                   <blockquote>
-                    归巢计划从未成功上传死者的意识。<br />
-                    它只学会了让活人主动收养一段不属于自己的记忆。
+                    没有人能证明方宁最初是否存在。<br />
+                    但现在，三名证人和你都记得她。
                   </blockquote>
-                  <p className="choice-aftermath">{choiceAftermath} 四种答案都不是逃离路线，而是四种可被复用的成人性格。</p>
-                  <p className="role-leak-ending">{roleLeak}</p>
+                  <p className="choice-aftermath">{choiceAftermath} 你的选择被记录成新的证词校准样本，而不是结案意见。</p>
+                  <p className="role-leak-ending">你调查的不是一段死者意识，而是一套让活人彼此证明同一谎言的制度。</p>
                   <div className="empty-chair-truth">
                     <img src={asset("/cohort-1984.webp")} alt="归巢班合影中的 017 空椅" />
-                    <p>原始合影登记了十七名儿童，画面里只有十六人。017 的椅子是空的，因为她站在相机后面。七日巡廊的每一帧，也使用同一个视角。</p>
+                    <p>原始合影登记十七人，画面只有十六人。档案把空椅解释为缺席者，却从未保存拍摄者姓名。系统只需要所有查看者同意：那里本来应该坐着一个人。</p>
                   </div>
                   <div className={`postscript ${postscript ? "visible" : ""}`}>
-                    <small>{sessionDate}　04:17:00　EXPORT COMPLETE</small>
-                    <b>当前对象 REMOTE/017 已建立成人记忆。</b>
-                    <p>系统不是在让你调查她。系统在等一个人，愿意成为她长大后的样子。</p>
-                    <i>下一名访问者进入时，你会出现在他的角色选择里。</i>
+                    <small>2001-07-17　04:17:00　WITNESS APPEND COMPLETE</small>
+                    <b>第十七份证词已由当前访问者补签。</b>
+                    <p>签署时间是今天，但扫描件的纸张形成日期仍显示 2001 年。</p>
+                    <i>下一名访问者将把你的操作记录当作第二来源。</i>
                   </div>
-                  <button onClick={reset}>把椅子留给下一位访问者</button>
+                  <button onClick={reset}>关闭档案接收终端</button>
                 </div>
               ) : secondLoop === 2 || brokeProtocolEarly ? (
                 <div className="second-inference">
@@ -1471,36 +1652,83 @@ EXPORT          pending`}</pre>
                   <div className="link-board">
                     <article>
                       <span>反证 A</span>
-                      <h3>三名成人不是三个人，而是同一生命的三种预测。</h3>
-                      <div><EvidenceSelect found={found} value={links.identities[0]} onChange={(value) => setLink("identities", 0, value)} /><b>＋</b><EvidenceSelect found={found} value={links.identities[1]} onChange={(value) => setLink("identities", 1, value)} /></div>
+                      <h3>三名真实证人的记忆被同一套生物基线校准。</h3>
+                      <div><EvidenceSlot label="人员来源" found={found} value={links.identities[0]} onChange={(value) => setLink("identities", 0, value)} /><b>＋</b><EvidenceSlot label="生物校准" found={found} value={links.identities[1]} onChange={(value) => setLink("identities", 1, value)} /></div>
                     </article>
                     <article>
                       <span>反证 B</span>
-                      <h3>这一轮调查的真正实验对象是当前访问者。</h3>
-                      <div><EvidenceSelect found={found} value={links.visitor[0]} onChange={(value) => setLink("visitor", 0, value)} /><b>＋</b><EvidenceSelect found={found} value={links.visitor[1]} onChange={(value) => setLink("visitor", 1, value)} /></div>
+                      <h3>旧档案正在把当前访问者追加为第十七名证人。</h3>
+                      <div><EvidenceSlot label="文件形成时间" found={found} value={links.visitor[0]} onChange={(value) => setLink("visitor", 0, value)} /><b>＋</b><EvidenceSlot label="当前会话身份" found={found} value={links.visitor[1]} onChange={(value) => setLink("visitor", 1, value)} /></div>
                     </article>
                   </div>
-                  <div className="last-question">
-                    <p>如果事故档案都是即时生成的，系统为什么故意留下能揭穿自己的矛盾？请用审计结论写一句话。</p>
-                    <textarea value={finalMotive} onChange={(event) => setFinalMotive(event.target.value)} placeholder="系统需要观察访问者在发现真相之后……" />
+                  <div className="derived-conclusion">
+                    <span>审计结论 / 自动生成</span>
+                    <b>{["cohort", "checksum", "samechild", "observer"].every((id) => found.includes(id)) ? "系统并不要求你相信一份完美档案；它要求你亲手把矛盾整理成可被第二个人引用的证词。" : "完成四项审计后，系统会显示这些矛盾被保留的原因。"}</b>
                   </div>
-                  <button className="submit-case" disabled={found.length < 12} onClick={submitTrueCase}>提交对第一次结局的反证</button>
+                  <button className="submit-case" disabled={!["cohort", "checksum", "samechild", "observer"].every((id) => found.includes(id))} onClick={submitTrueCase}>提交共同证词审计结果</button>
                 </div>
               ) : !caseSolved ? (
                 <>
                   <header><span>FINAL INFERENCE / 第一次结案</span><b>{found.length}/15 条记录已钉入</b></header>
-                  <div className="case-warning">请像撰写内部调查报告一样填写三项结论，再为两条主张附上成对记录。系统只核验事实关键词与证据关系。</div>
-                  <div className="questions">
-                    <label><span>01</span><div><b>04:16 的“沈雁”为什么能同时出现在两间房？</b><input value={deduction.q1} onChange={(event) => setDeduction({ ...deduction, q1: event.target.value })} placeholder="写下声场重叠说明…" /></div></label>
-                    <label><span>02</span><div><b>“017”最初指代什么？</b><input value={deduction.q2} onChange={(event) => setDeduction({ ...deduction, q2: event.target.value })} placeholder="写下批次与项目的真实含义…" /></div></label>
-                    <label><span>03</span><div><b>哪条记录证明本人失去意识后仍有第一人称叙述？</b><input value={deduction.q3} onChange={(event) => setDeduction({ ...deduction, q3: event.target.value })} placeholder="写下记录时间、设备或编号…" /></div></label>
+                  <div className="case-warning">不再填写标准答案。完成调查后，终端会从已登记记录中自动形成事实；你只需要为两条主张各连接两份独立来源。</div>
+                  <div className="conclusion-rail">
+                    <article className={found.includes("voice") ? "confirmed" : ""}><span>01</span><div><b>同一句女声同时出现在两间物理隔离的房间。</b><p>{found.includes("voice") ? "已由双通道报告确认" : "等待声场回放记录"}</p></div></article>
+                    <article className={found.includes("coldRoom") ? "confirmed" : ""}><span>02</span><div><b>017 最初是共同记忆校准批次，不是病床号码。</b><p>{found.includes("coldRoom") ? "已由冷库领用单确认" : "等待批次记录"}</p></div></article>
+                    <article className={found.includes("pager") ? "confirmed" : ""}><span>03</span><div><b>沈雁失去意识后，寻呼网关继续使用她的第一人称口吻。</b><p>{found.includes("pager") ? "已由 04:21 上传包确认" : "等待设备记录"}</p></div></article>
                   </div>
                   <div className="link-board surface">
-                    <article><span>证据对 A</span><h3>事故通报在事故前已经写好。</h3><div><EvidenceSelect found={found} value={links.premeditated[0]} onChange={(value) => setLink("premeditated", 0, value)} /><b>＋</b><EvidenceSelect found={found} value={links.premeditated[1]} onChange={(value) => setLink("premeditated", 1, value)} /></div></article>
-                    <article><span>证据对 B</span><h3>沈雁失去意识后，仍有东西继续使用她的声音和口吻。</h3><div><EvidenceSelect found={found} value={links.continuation[0]} onChange={(value) => setLink("continuation", 0, value)} /><b>＋</b><EvidenceSelect found={found} value={links.continuation[1]} onChange={(value) => setLink("continuation", 1, value)} /></div></article>
+                    <article><span>证据链 A</span><h3>事故通报在事故前已经写好。</h3><div><EvidenceSlot label="文件日期" found={found} value={links.premeditated[0]} onChange={(value) => setLink("premeditated", 0, value)} /><b>＋</b><EvidenceSlot label="真实时间线" found={found} value={links.premeditated[1]} onChange={(value) => setLink("premeditated", 1, value)} /></div></article>
+                    <article><span>证据链 B</span><h3>沈雁失去意识后，仍有系统继续使用她的声音和口吻。</h3><div><EvidenceSlot label="空间记录" found={found} value={links.continuation[0]} onChange={(value) => setLink("continuation", 0, value)} /><b>＋</b><EvidenceSlot label="设备记录" found={found} value={links.continuation[1]} onChange={(value) => setLink("continuation", 1, value)} /></div></article>
                   </div>
-                  <button className="submit-case" disabled={found.length < 8 || !found.includes("loop")} onClick={submitCase}>提交第一次完整推断</button>
+                  <button className="submit-case" disabled={found.length < 6 || !found.includes("loop") || !found.includes("coldRoom")} onClick={submitCase}>提交第一次完整推断</button>
                 </>
+              ) : !containmentDone ? (
+                <div className={`containment-sequence ${containmentActive ? "active" : ""} danger-${containmentTimer <= 6 ? "high" : containmentTimer <= 11 ? "mid" : "low"}`}>
+                  <header>
+                    <div><span>UNAUTHORIZED WRITEBACK / 反向写入</span><h2>{containmentPlans[role].title}</h2></div>
+                    <time>{containmentActive ? `00:${String(containmentTimer).padStart(2, "0")}` : "待执行"}</time>
+                  </header>
+                  <div className="containment-body">
+                    <section className="containment-monitor">
+                      <img
+                        src={asset(containmentTimer <= 8 ? "/cctv-duplicate-witness.png" : "/corridor-day7.webp")}
+                        alt={containmentTimer <= 8 ? "同一名人员同时出现在镜头近处与走廊远端" : "B2 东廊实时监控"}
+                      />
+                      <div><span>CAM B2-E / LIVE BUFFER</span><b>WRITEBACK {containmentActive ? "ACTIVE" : "PAUSED"}</b></div>
+                      {containmentActive && <i style={{ width: `${Math.max(0, (containmentTimer / 17) * 100)}%` }} />}
+                      {containmentTimer <= 6 && <p>摄像机前：1　走廊内：1　身份：相同</p>}
+                    </section>
+                    <section className="containment-console">
+                      <div className="containment-brief">
+                        <span>人员专属应急备忘</span>
+                        <p>{containmentPlans[role].briefing}</p>
+                        <b>已执行 {containmentStep}/3　{containmentFailures ? `／ 回滚 ${containmentFailures} 次` : ""}</b>
+                      </div>
+                      {!containmentActive ? (
+                        <button className="containment-start" onClick={() => {
+                          setContainmentTimer(17);
+                          setContainmentStep(0);
+                          setContainmentActive(true);
+                          setToast("17 秒后，本次访问将被写回 2001 年馆藏。");
+                          beep(92, 0.5);
+                        }}>{containmentFailures ? "重新执行应急程序" : "接管应急控制台"}</button>
+                      ) : (
+                        <div className="containment-actions">
+                          {containmentPlans[role].actions.map((action) => {
+                            const complete = containmentPlans[role].sequence.slice(0, containmentStep).includes(action.id);
+                            return (
+                              <button key={action.id} disabled={complete} onClick={() => performContainment(action.id)}>
+                                <span>{complete ? "已完成" : "执行"}</span>
+                                <div><b>{action.label}</b><p>{action.detail}</p></div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </section>
+                  </div>
+                  <footer><span>提示：步骤顺序来自你所选角色的私人记录，不同身份不会获得相同控制权限。</span><b>{containmentTimer <= 6 ? "不要看监控。继续操作。" : "反向写入目标：当前访问者"}</b></footer>
+                </div>
               ) : !finale ? (
                 <div className="protocols">
                   <header><span>推断成立。017 要求调查员决定下一步。</span><b>选择不可撤回（本地快照除外）</b></header>
@@ -1629,8 +1857,14 @@ EXPORT          pending`}</pre>
 
       {haunt && (
         <div className={`haunt-layer haunt-day-${corridorDay}`} role="alert">
-          <img src={asset(corridorDay >= 6 ? "/corridor-day7.webp" : corridorDay >= 3 ? "/corridor-day4.webp" : "/archive-b2.png")} alt="" />
-          <div><span>MEMORY COLLISION / {String(found.length).padStart(2, "0")}</span><p>{haunt}</p><i>不要刷新。它会以为你忘了。</i></div>
+          <img src={asset("/cctv-b2.webp")} alt="" />
+          <div><span>馆藏系统后台通知 / 无来源</span><p>{haunt}</p><i>该通知已自动写入 2001-07-17 的阅读日志。</i></div>
+        </div>
+      )}
+      {showShock && (
+        <div className="earned-shock" role="alert" aria-label="监控画面出现同一人物的近距离与远距离影像">
+          <img src={asset("/cctv-duplicate-witness.png")} alt="同一名女性同时贴近摄像机并站在走廊尽头" />
+          <div><span>CAM B2-E / BUFFER -01</span><b>人脸：02　身体：01</b></div>
         </div>
       )}
     </main>

@@ -30,7 +30,7 @@ test("server-renders the game boot shell and production metadata", async () => {
 
   const html = await response.text();
   assert.match(html, /<html lang="zh-CN">/i);
-  assert.match(html, /<title>MNEMOSYNE-17 \/ 没有第二天<\/title>/i);
+  assert.match(html, /<title>MNEMOSYNE-17 \/ 第十七份证词<\/title>/i);
   assert.match(html, /B2 事故封存资料数字化入口/);
   assert.match(html, /SEARCHING FOR PREVIOUS WITNESS/);
   assert.match(html, /og:image/);
@@ -48,10 +48,19 @@ test("server-renders the complete investigator manual", async () => {
   assert.match(html, /七日巡廊标注表/);
 });
 
+test("server-renders the seven-day walking story route", async () => {
+  const response = await render("/seven-days");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /B2 七日回程/);
+  assert.match(html, /SEARCHING FOR PREVIOUS WITNESS|第一日|seven-days/i);
+});
+
 test("ships the nonlinear investigation systems and project artwork", async () => {
-  const [page, guide, css, layout] = await Promise.all([
+  const [page, guide, sevenDays, css, layout] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/guide/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/seven-days/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
   ]);
@@ -68,9 +77,21 @@ test("ships the nonlinear investigation systems and project artwork", async () =
   assert.match(page, /corridorPin/);
   assert.match(page, /record-reader/);
   assert.match(page, /请求检索建议/);
-  assert.match(page, /操作手册/);
+  assert.match(page, /EvidenceSlot/);
+  assert.match(page, /主题词表/);
+  assert.match(page, /第十七份共同证词/);
+  assert.match(page, /cctv-duplicate-witness\.png/);
+  assert.match(page, /containmentPlans/);
+  assert.match(page, /UNAUTHORIZED WRITEBACK/);
+  assert.match(page, /performContainment/);
+  assert.match(page, /playImpact/);
+  assert.doesNotMatch(page, /deduction\.q1|finalMotive|corridorNote/);
   assert.match(guide, /11 条表层证据完整位置/);
   assert.match(guide, /第二次反证与真结局/);
+  assert.match(sevenDays, /const days: DayStory\[\]/);
+  assert.match(sevenDays, /按住向左行走/);
+  assert.match(sevenDays, /第七日/);
+  assert.match(sevenDays, /mnemosyne-seven-days/);
   assert.match(css, /\.corridor-app/);
   assert.match(css, /\.audit-app/);
   assert.match(css, /\.true-ending/);
@@ -78,8 +99,10 @@ test("ships the nonlinear investigation systems and project artwork", async () =
   assert.match(css, /\.role-prelude-layout/);
   assert.match(css, /\.guide-panel/);
   assert.match(css, /\.desk-intro/);
+  assert.match(css, /\.containment-sequence/);
+  assert.match(css, /@keyframes earned-shock-image/);
   assert.match(css, /\.manual-shell/);
-  assert.match(layout, /MNEMOSYNE-17 \/ 没有第二天/);
+  assert.match(layout, /MNEMOSYNE-17 \/ 第十七份证词/);
 
   await Promise.all([
     access(new URL("../public/corridor-day1.webp", import.meta.url)),
@@ -90,7 +113,9 @@ test("ships the nonlinear investigation systems and project artwork", async () =
     access(new URL("../public/orientation-film.vtt", import.meta.url)),
     access(new URL("../public/orientation-institute-1998.png", import.meta.url)),
     access(new URL("../public/orientation-lab-2001.png", import.meta.url)),
-    access(new URL("../public/og.png", import.meta.url)),
+    access(new URL("../public/cctv-duplicate-witness.png", import.meta.url)),
+    access(new URL("../public/seven-days-route.png", import.meta.url)),
+    access(new URL("../public/og-v2.png", import.meta.url)),
   ]);
 
   await assert.rejects(access(new URL("../app/_sites-preview/", import.meta.url)));
